@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/AndServer.dir/Src/AndroidInputServer.cpp.o CMakeFiles/AndServer.dir/Src/ClientHandler.cpp.o CMakeFiles/AndServer.dir/Src/Logger.cpp.o CMakeFiles/AndServer.dir/Src/Main.cpp.o CMakeFiles/AndServer.dir/Src/MouseClientHandler.cpp.o CMakeFiles/AndServer.dir/Src/MouseHandler.cpp.o  -o AndServer -lpthread 

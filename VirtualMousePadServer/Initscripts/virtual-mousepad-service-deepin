@@ -1,0 +1,16 @@
+#virtual-mousepad-service-deepin job file
+
+description     "Initialize VirtualMosuePad service"
+
+start on (net-device-up IFACE!=lo)
+
+expect fork
+
+stop on runlevel[016]
+
+pre-start script
+	echo "Starting VirtualTouchPad"
+end script
+
+exec virtual_mousepad_server
+

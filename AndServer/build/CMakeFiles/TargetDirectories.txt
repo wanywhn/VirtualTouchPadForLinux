@@ -1,0 +1,3 @@
+/home/tender/workplace/git/Android-Virtual-Input-for-Linux/AndServer/build/CMakeFiles/rebuild_cache.dir
+/home/tender/workplace/git/Android-Virtual-Input-for-Linux/AndServer/build/CMakeFiles/AndServer.dir
+/home/tender/workplace/git/Android-Virtual-Input-for-Linux/AndServer/build/CMakeFiles/edit_cache.dir
