@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.virtualmousepad"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+        android:label="@string/app_name"
+        android:allowBackup="true">
+        <service
+            android:name="com.virtualmousepad.ConnectionService"/>
+        
+        <activity
+            android:label="@string/app_name"
+            android:name="com.virtualmousepad.StartActivity"
+            android:theme="@android:style/Theme.NoTitleBar">
+            <intent-filter >
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.VIEW"/>
+            </intent-filter>
+        </activity>
+        
+        <activity
+            android:name="com.virtualmousepad.SetupConnectionActivity"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:exported="false">
+        </activity>
+        
+        <activity
+            android:name="com.virtualmousepad.TouchpadActivity"
+            android:noHistory="true"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:exported="false">
+        </activity>
+
+    </application>
+
+</manifest>
