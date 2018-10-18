@@ -23,7 +23,6 @@ public class MouseConnectionHandler extends ConnectionHandler {
 			{
 				os.write(bytes);
 			}
-			Log.d("Mouse Date:", Arrays.toString(bytes));
 			return true;
 		} catch (IOException e) {
 			Log.e("MouseConnectionHandler",  e.toString());

@@ -10,7 +10,6 @@
 #include <netinet/tcp.h>
 
 #include "messageTypes.h"
-#include "KeyboardHandler.h"
 #include "MouseHandler.h"
 
 class ClientHandler {

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/VirtualMousePadAndroidClient.iml" filepath="$PROJECT_DIR$/VirtualMousePadAndroidClient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/VirtualTouchPadAndroidClient.iml" filepath="$PROJECT_DIR$/VirtualTouchPadAndroidClient.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

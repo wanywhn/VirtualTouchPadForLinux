@@ -9,22 +9,19 @@ struct sigaction sigactionChild;
 
 int main(int argc, char *argv[]) {
 
-	AndroidInputServer *server = new AndroidInputServer();
-	if(server==NULL){
-		return 1;
-	}
+	auto *server = new AndroidInputServer();
 
 	if ( !(server->initialize(argc, argv)) ) {
 		delete server;
 		return 1;
 	}
 
-	sigactionEnd.sa_handler = server->handleEndSignal;
-	sigactionChild.sa_handler = server->handleSigChild;
+	sigactionEnd.sa_handler = AndroidInputServer::handleEndSignal;
+	sigactionChild.sa_handler = AndroidInputServer::handleSigChild;
 
-	sigaction(SIGINT, &sigactionEnd, NULL);
-	sigaction(SIGTERM, &sigactionEnd, NULL);
-	sigaction(SIGCHLD, &sigactionChild, NULL);
+	sigaction(SIGINT, &sigactionEnd, nullptr);
+	sigaction(SIGTERM, &sigactionEnd, nullptr);
+	sigaction(SIGCHLD, &sigactionChild, nullptr);
 
 	server->andListen();
 

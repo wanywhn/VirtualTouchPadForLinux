@@ -27,16 +27,12 @@ public class TouchpadActivity extends Activity {
 
     private int mCurrentFingerCount;
     private int mLastFingerCount;
-    private static int tapCount;
-    private Timer timerDown = null;
-    private Timer timerUp = null;
 
     private SparseArray<PointF> mActivePoints;
     private final Object mActivePointsLock = new Object();
+    private static int pcount=0;
 
     private ConnectionReceiver mMouseConnectionReceiver = new ConnectionReceiver();
-    private boolean downTimeout;
-    private boolean upTimeout;
 
     private class ConnectionReceiver extends BroadcastReceiver {
         @Override
@@ -62,9 +58,6 @@ public class TouchpadActivity extends Activity {
         mActivePoints = new SparseArray<PointF>();
         mCurrentFingerCount = 0;
         mLastFingerCount = 0;
-        tapCount = 0;
-        downTimeout = false;
-        upTimeout = true;
 
         View v = findViewById(R.id.touchPad);
 
@@ -139,20 +132,24 @@ public class TouchpadActivity extends Activity {
                 f.x = event.getX(pointerIdx);
                 f.y = event.getY(pointerIdx);
                 Log.d("ACTION_POINTER_DOWN", "Finger ID:" + String.valueOf(pointerId) + " X:" + String.valueOf(f.x) + " Y:" + String.valueOf(f.y));
-                mActivePoints.put(pointerId, f);
-                ++mCurrentFingerCount;
+                synchronized (mActivePointsLock) {
+                    mActivePoints.put(pointerId, f);
+                    ++mCurrentFingerCount;
+                    SendStatusPacket();
+                    SendHeadPacket(event);
+                    mLastFingerCount=mCurrentFingerCount;
+                }
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 //prepare and send head packet;
-                if (mLastFingerCount != mCurrentFingerCount) {
-                    synchronized (mActivePointsLock) {
+                synchronized (mActivePointsLock) {
+                    if (mLastFingerCount != mCurrentFingerCount) {
                         SendStatusPacket();
                         SendHeadPacket(event);
+                        mLastFingerCount = mCurrentFingerCount;
                     }
-                    mLastFingerCount = mCurrentFingerCount;
                 }
-
 
                 if (mCurrentFingerCount == 1) {
                     SendHeadPacketForOneFingerWhenMotion(event);
@@ -163,48 +160,42 @@ public class TouchpadActivity extends Activity {
                     PacketMotionBuilder motionBuilder = new PacketMotionBuilder();
                     boolean clearFlag = true;
                     int hiscount = event.getHistorySize();
-                    for (int hidx = 0; hidx != hiscount; ++hidx) {
-                        for (int idx = 0; idx < mCurrentFingerCount; ++idx) {
-                            int id = mActivePoints.keyAt(idx);
-                            int pointer = event.findPointerIndex(id);
-                            if (pointer < 0) {
+                    for (int hisidx = 0; hisidx != hiscount; ++hisidx) {
+                        for (int i = 0; i < mCurrentFingerCount; ++i) {
+                            int processingFingerId = mActivePoints.keyAt(i);
+                            int processingPointerIdx = event.findPointerIndex(processingFingerId);
+                            if (processingPointerIdx < 0) {
                                 continue;
                             }
-                            int deltX = (int) (event.getHistoricalX(pointer, hidx) - mActivePoints.valueAt(idx).x);
-                            int deltY = (int) (event.getHistoricalY(pointer, hidx) - mActivePoints.valueAt(idx).y);
+                            int deltX = (int) (event.getHistoricalX(processingPointerIdx, hisidx) - mActivePoints.valueAt(i).x);
+                            int deltY = (int) (event.getHistoricalY(processingPointerIdx, hisidx) - mActivePoints.valueAt(i).y);
+                            //TODO maybe pressure
                             if (deltX == 0 && deltY == 0) {
                                 continue;
                             }
-//                            if(mCurrentFingerCount==3||mCurrentFingerCount==4||mCurrentFingerCount==5){
-//
-//                                if(abs(deltX)<2&&abs(deltY)<2){
-//                                    continue;
-//                                }
-//                                else if(abs(deltX)<2){
-//                                    deltY=(deltY+deltY<0?-4:4)*mCurrentFingerCount*mCurrentFingerCount;
-//                                    deltX=0;
-//                                }else if(abs(deltY) < 2){
-//                                    deltX=(deltX+deltX<0?-4:4)*mCurrentFingerCount*mCurrentFingerCount;
-//                                    deltY=0;
-//                                }
-//                            }
-                            mActivePoints.valueAt(idx).x = event.getHistoricalX(pointer, hidx);
-                            mActivePoints.valueAt(idx).y = event.getHistoricalY(pointer, hidx);
+                            mActivePoints.valueAt(i).x = event.getHistoricalX(processingPointerIdx, hisidx);
+                            mActivePoints.valueAt(i).y = event.getHistoricalY(processingPointerIdx, hisidx);
                             if (clearFlag) {
                                 clearFlag = false;
                                 motionBuilder.clear();
-                                motionBuilder.setId1(id);
+                                motionBuilder.setId1(processingFingerId);
                                 motionBuilder.setX1(deltX);
                                 motionBuilder.setY1(deltY);
-                                Log.d("ACTION_MOVE/MOTION", "Finger ID:" + String.valueOf(id) + " DELT_X1:" + String.valueOf(deltX) + " DELT_Y1:" + String.valueOf(deltY));
+                                if(pcount++>=30){
+                                    Log.d("ACTION_MOVE/MOTION", "Finger ID:" + String.valueOf(processingFingerId) + " DELT_X1:" + String.valueOf(deltX) + " DELT_Y1:" + String.valueOf(deltY));
+                                    pcount=0;
+                                }
 
                             } else {
                                 clearFlag = true;
-                                motionBuilder.setId2(id);
+                                motionBuilder.setId2(processingFingerId);
                                 motionBuilder.setX2(deltX);
                                 motionBuilder.setY2(deltY);
                                 ConnectionService.mService.sendMouseData(motionBuilder.getBytes());
-                                Log.d("ACTION_MOVE/MOTION", "Finger ID:" + String.valueOf(id) + " DELT_X2:" + String.valueOf(deltX) + " DELT_Y2:" + String.valueOf(deltY));
+                                if(pcount++>=30){
+                                    Log.d("ACTION_MOVE/MOTION", "Finger ID:" + String.valueOf(processingFingerId) + " DELT_X2:" + String.valueOf(deltX) + " DELT_Y2:" + String.valueOf(deltY));
+                                    pcount=0;
+                                }
                             }
 
                         }
@@ -215,13 +206,16 @@ public class TouchpadActivity extends Activity {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
-                --mCurrentFingerCount;
                 synchronized (mActivePointsLock) {
+                    --mCurrentFingerCount;
+                    --mLastFingerCount;
                     Log.d("ACTION_POINTER_UP", "Finger ID:" + String.valueOf(pointerId));
+                    mActivePoints.remove(pointerId);
                     SendStatusPacket();
-                    SendHeadPacket(event);
+//                    if (mCurrentFingerCount != 0) {
+//                        SendHeadPacket(event);
+//                    }
                 }
-                mActivePoints.remove(pointerId);
 
                 break;
         }
@@ -230,20 +224,18 @@ public class TouchpadActivity extends Activity {
 
     private boolean checkPosSame(int id, float currentx, float currenty) {
         return mActivePoints.get(id).equals(currentx, currenty);
-
     }
 
     private void SendHeadPacketForOneFingerWhenMotion(MotionEvent event) {
         float historySize = event.getHistorySize();
         for (int i = 0; i < historySize; ++i) {
             PacketHeadBUilder headBUilder = new PacketHeadBUilder();
+            if(mActivePoints.size()!=1){
+                Log.e("head for one finger:","ERROR: mActivePoints !=1");
+            }
             int id = mActivePoints.keyAt(0);
             float currentx = event.getHistoricalX(i);
             float currenty = event.getHistoricalY(i);
-            if (checkPosSame(id, currentx, currenty) && tapCount++ >= 8) {
-                tapCount = 0;
-                continue;
-            }
             //TODO change to hear
             mActivePoints.get(id).x = currentx;
             mActivePoints.get(id).y = currenty;
@@ -253,8 +245,12 @@ public class TouchpadActivity extends Activity {
             headBUilder.setPressure((int) (press > 2 ? press : 2));
             headBUilder.setX(currentx);
             headBUilder.setY(currenty);
-            Log.d("SingleHeadPacket:", " Width=" + String.valueOf(event.getHistoricalToolMajor(i)) + "Pressure=" + String.valueOf(press)
+
+            if(pcount++>30){
+            Log.d("SingleHeadPacket:", "ID:"+String.valueOf(id)+" Width=" + String.valueOf(event.getHistoricalToolMajor(i)) + "Pressure=" + String.valueOf(press)
                     + " X:" + String.valueOf(mActivePoints.get(id).x) + " Y:" + String.valueOf(mActivePoints.get(id).y));
+            pcount=0;
+            }
             ConnectionService.mService.sendMouseData(headBUilder.getBytes());
         }
 
@@ -274,7 +270,7 @@ public class TouchpadActivity extends Activity {
             if (pidx < 0) {
                 continue;
             }
-            headBUilder.setWidth((short) pidx);
+            headBUilder.setWidth((short)2);
             headBUilder.setPressure((int) (16 * event.getPressure(pidx)));
             int x = (int) mActivePoints.get(id).x;
             int y = (int) mActivePoints.get(id).y;
@@ -282,20 +278,20 @@ public class TouchpadActivity extends Activity {
             headBUilder.setY(mActivePoints.get(id).y);
             headBUilder.setId(id);
             ConnectionService.mService.sendMouseData(headBUilder.getBytes());
-            Log.d("ACTION_MOVE/HEAD", "Finger ID:" + String.valueOf(id) + " X:" + String.valueOf(x) + " Y:" + String.valueOf(y));
+            Log.d("SendHeadPacket", "Finger ID:" + String.valueOf(id) + " X:" + String.valueOf(x) + " Y:" + String.valueOf(y));
         }
     }
 
     private void SendStatusPacket() {
         //prepare and send status packet;
         PacketStatusBuilder statusBuilder = new PacketStatusBuilder();
-
-        //TODO use non-block send
-        for (int idx = 0; idx < mCurrentFingerCount; ++idx) {
-            //FIXME id should be 0-4
-            //TODO palm???
-            statusBuilder.setFingerTouched(mActivePoints.keyAt(idx));
-        }
+            //TODO use non-block send
+            for (int idx = 0; idx < mCurrentFingerCount; ++idx) {
+                //FIXME id should be 0-4
+                //TODO palm???
+                statusBuilder.setFingerTouched(mActivePoints.keyAt(idx));
+                Log.d("SendStatus:","touched:"+String.valueOf(mActivePoints.keyAt(idx)));
+            }
         ConnectionService.mService.sendMouseData(statusBuilder.getBytes());
     }
 

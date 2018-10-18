@@ -8,4 +8,4 @@ string(CONCAT KPATH "/usr/src/linux-headers-" ${UNAMER}  "/include" )
 string(REGEX REPLACE "\n" "" KPATH ${KPATH})
 include_directories(BEFORE ${KPATH})
 add_executable(avms
-        virtual_mousepad.c virtual_mousepad.h)
+        virtual_touchpad.c virtual_touchpad.h)

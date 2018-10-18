@@ -21,6 +21,8 @@
 1. 打开Client程序，设置目标地址目标端口，连接后进入TouchPad界面
 
 
+### TODO
+1. VirtualTouchPadDriver中设备的信息应通过Server获取后进行设置
 #### 参与贡献
 
 1. Fork 本项目

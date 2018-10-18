@@ -42,9 +42,14 @@ bool MouseHandler::closeMouse() {
 
 bool MouseHandler::sendMouseEvent(const unsigned char *data){
 	const int data_size=6;
-	if ( write(mouseFd,data,data_size) ) {
+	int writed=write(mouseFd,data,data_size);
+	if(writed==-1){
 		logger->error("11.12.2011 21:53:54 sendMouseEvent write() error");
 		return false;
+	}else if(writed!=data_size){
+		char tmp[128];
+		sprintf(tmp,"sendMouseEvent write bytes only %d,wanted %d",writed,data_size);
+		logger->error(tmp);
 	}
 	return true;
 }
