@@ -80,9 +80,9 @@ static void process_packet_status_v4(struct vtp_dev*vtp_dev1)
 	printk("process_packet_status_v4: get fingers:%x\n",fingers);
 	for (i = 0; i <VTP_MAX_FINGER; i++) {
 		if ((fingers & (1 << i)) == 0) {
-			#ifdef VTP_DEBUG 
-				printk(KERN_DEBUG "process_packet_status:finger id:%d untouched\n",i);
-			#endif
+#ifdef VTP_DEBUG 
+			printk(KERN_DEBUG "process_packet_status:finger id:%d untouched\n",i);
+#endif
 			input_mt_slot(dev, i);
 			input_mt_report_slot_state(dev, MT_TOOL_FINGER, false);
 		}
@@ -107,9 +107,9 @@ static void process_packet_head_v4(struct vtp_dev *vtp_dev1)
 	pres = (packet[1] & 0xf0) | ((packet[4] & 0xf0) >> 4);
 	traces = (packet[0] & 0xf0) >> 4;
 
-	#ifdef VTP_DEBUG
-		printk(KERN_DEBUG "process_packet_head: finger id:%d touched\n",id);
-	#endif
+#ifdef VTP_DEBUG
+	printk(KERN_DEBUG "process_packet_head: finger id:%d touched\n",id);
+#endif
 	input_mt_slot(dev, id);
 	input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
 
@@ -417,17 +417,17 @@ static void vtp_exit(void)
 		mvtp_dev->etd->tp_dev=NULL;
 	}
 	if(mvtp_dev->etd!=NULL){
-	    kfree(mvtp_dev->etd);
-	    mvtp_dev->etd=NULL;
+		kfree(mvtp_dev->etd);
+		mvtp_dev->etd=NULL;
 
 	}
 	if(mvtp_dev!=NULL){
+		cdev_del(&mvtp_dev->mcdev);
+		if(vtp_dev_num!=-1){
+			unregister_chrdev_region(vtp_dev_num, 1);
+		}
 		kfree(mvtp_dev);
 		mvtp_dev=NULL;
-	}
-	cdev_del(&mvtp_dev->mcdev);
-	if(vtp_dev_num!=-1){
-		unregister_chrdev_region(vtp_dev_num, 1);
 	}
 	printk(KERN_INFO "Android Virtual Mouse Driver unloaded.\n");
 };

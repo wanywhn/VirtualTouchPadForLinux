@@ -1,0 +1,7 @@
+#!/bin/sh
+
+update-rc.d vtp-server defaults
+service vtp-server restart
+
+exit 0
+

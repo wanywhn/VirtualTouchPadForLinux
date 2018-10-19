@@ -1,0 +1,44 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:	     vtp-server
+# Required-Start:    $network $syslog
+# Required-Stop:     $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts the Virtual Touchpad Server daemon
+# Description:       starts the Virtual Touchpad Server daemon
+### END INIT INFO
+
+PNAME="Virtual Touchpad"
+
+
+start() {
+
+	echo "Starting $PNAME ..."
+	vtp_server
+
+}
+
+stop() {
+	echo "Stopping $PNAME ..."
+	pkill vtp_server
+}
+
+# See how we were called.
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart|force-reload)
+		stop
+		start
+		;;
+	*)
+
+		echo $"Usage: $0 {start|stop|restart|force-reload}"
+		exit 2
+esac

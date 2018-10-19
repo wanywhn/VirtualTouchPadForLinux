@@ -21,7 +21,7 @@
 #define MOUSE_DEFAULT_PORT 6781
 
 #define MOUSE_DEFAULT_FILE_PATH "/dev/virtual_touchpad"
-#define OPTIONS_DEFAULT_FILE_PATH "/etc/virtual_touchpad.conf"
+#define OPTIONS_DEFAULT_FILE_PATH "/etc/virtual_touchpad_server.conf"
 
 class AndroidInputServer {
 	public:

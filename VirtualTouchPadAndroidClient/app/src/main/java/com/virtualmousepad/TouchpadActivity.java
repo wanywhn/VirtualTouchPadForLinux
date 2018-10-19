@@ -241,12 +241,12 @@ public class TouchpadActivity extends Activity {
             mActivePoints.get(id).y = currenty;
             headBUilder.setId(id);
             headBUilder.setWidth((short) (event.getHistoricalTouchMajor(i)));
-            float press = event.getHistoricalPressure(i) * 10 - 1;
+            float press = event.getHistoricalPressure(i) * 100 ;
             headBUilder.setPressure((int) (press > 2 ? press : 2));
             headBUilder.setX(currentx);
             headBUilder.setY(currenty);
 
-            if(pcount++>30){
+            if(pcount++>40){
             Log.d("SingleHeadPacket:", "ID:"+String.valueOf(id)+" Width=" + String.valueOf(event.getHistoricalToolMajor(i)) + "Pressure=" + String.valueOf(press)
                     + " X:" + String.valueOf(mActivePoints.get(id).x) + " Y:" + String.valueOf(mActivePoints.get(id).y));
             pcount=0;
@@ -271,14 +271,16 @@ public class TouchpadActivity extends Activity {
                 continue;
             }
             headBUilder.setWidth((short)2);
-            headBUilder.setPressure((int) (16 * event.getPressure(pidx)));
+            int pressure= (int) event.getPressure(pidx)*100;
+            headBUilder.setPressure(pressure);
             int x = (int) mActivePoints.get(id).x;
             int y = (int) mActivePoints.get(id).y;
             headBUilder.setX(mActivePoints.get(id).x);
             headBUilder.setY(mActivePoints.get(id).y);
             headBUilder.setId(id);
             ConnectionService.mService.sendMouseData(headBUilder.getBytes());
-            Log.d("SendHeadPacket", "Finger ID:" + String.valueOf(id) + " X:" + String.valueOf(x) + " Y:" + String.valueOf(y));
+            Log.d("SendHeadPacket", "Finger ID:" + String.valueOf(id) + " X:" + String.valueOf(x) + " Y:" + String.valueOf(y)+
+            "Pressure:"+String.valueOf(pressure));
         }
     }
 

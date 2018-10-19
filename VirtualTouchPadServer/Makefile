@@ -4,17 +4,11 @@ clean:
 
 
 install:
-	cp AndServer /usr/bin
-	cp andserver.conf.example /etc/andserver.conf
+	cp virtual_touchpad_server /usr/bin
+	cp virtual_touchpad_server.conf.example /etc/virtual_touchpad_server.conf
+	cp Initscripts/virtual-touchpad-services-deepin /etc/init.d/
 
-distclean:
-	rm /usr/bin/AndServer /etc/andserver.conf
+uninstall:
+	rm /usr/bin/virtual_touchpad_server /etc/virtual_touchpad_server.conf
 
-
-ubuntu-install:
-	cp Initscripts/andserver-service-ubuntu /etc/init/andserver-service.conf
-	initctl start andserver-service
-
-ubuntu-uninstall:
-	rm /etc/init/andserver-service.conf
 
