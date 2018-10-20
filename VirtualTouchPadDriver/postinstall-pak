@@ -15,3 +15,8 @@ depmod 4.15.0-29deepin-generic
 # postinstall script, created by checkinstall-1.6.2
 #
 depmod 4.15.0-29deepin-generic
+#!/bin/sh
+#
+# postinstall script, created by checkinstall-1.6.2
+#
+depmod 4.15.0-29deepin-generic

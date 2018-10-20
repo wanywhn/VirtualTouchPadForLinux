@@ -31,6 +31,9 @@ dev_t vtp_dev_num=-1;
 struct vtp_dev *mvtp_dev=NULL;
 static int vtp_major = vtp_MAJOR;
 
+static int finger_count;
+
+
 static ssize_t vtp_write(struct file *filp, const char *buf, size_t count, loff_t *f_pos);
 static int vtp_open(struct inode *inode,struct file *filp);
 
@@ -61,10 +64,10 @@ static void elantech_input_sync_v4(struct vtp_dev*vtp_dev1)
 	/* For clickpads map both buttons to BTN_LEFT */
 	input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
 	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
-	input_report_key(dev, BTN_MIDDLE, packet[0] & 0x04);
+	//input_report_key(dev, BTN_MIDDLE, packet[0] & 0x04);
 
-	input_mt_sync_frame(dev);
-	// input_mt_report_pointer_emulation(dev, true);
+	//input_mt_sync_frame(dev);
+	input_mt_report_pointer_emulation(dev,true);
 	input_sync(dev);
 }
 
@@ -77,18 +80,18 @@ static void process_packet_status_v4(struct vtp_dev*vtp_dev1)
 
 	/* notify finger state change */
 	fingers = packet[1] & 0x1f;
+	finger_count=0;
 	printk("process_packet_status_v4: get fingers:%x\n",fingers);
 	for (i = 0; i <VTP_MAX_FINGER; i++) {
 		if ((fingers & (1 << i)) == 0) {
-#ifdef VTP_DEBUG 
-			printk(KERN_DEBUG "process_packet_status:finger id:%d untouched\n",i);
-#endif
 			input_mt_slot(dev, i);
 			input_mt_report_slot_state(dev, MT_TOOL_FINGER, false);
+		}else{
+			++finger_count;
 		}
 	}
-
 	elantech_input_sync_v4(vtp_dev1);
+
 }
 
 static void process_packet_head_v4(struct vtp_dev *vtp_dev1)
@@ -115,10 +118,17 @@ static void process_packet_head_v4(struct vtp_dev *vtp_dev1)
 
 	input_report_abs(dev, ABS_MT_POSITION_X, etd->mt[id].x);
 	input_report_abs(dev, ABS_MT_POSITION_Y, etd->mt[id].y);
+//	if(id!=dev->mt->trkid){
+//		input_report_abs(dev,ABS_X,etd->mt[id].x);
+//		input_report_abs(dev,ABS_Y,etd->mt[id].y);
+//	}
 	input_report_abs(dev, ABS_MT_PRESSURE, pres);
 	input_report_abs(dev, ABS_MT_TOUCH_MAJOR, traces * etd->width);
+
+	//input_report_key(dev, BTN_TOOL_FINGER,true);
 	/* report this for backwards compatibility */
 	input_report_abs(dev, ABS_TOOL_WIDTH, traces);
+	//input_report_abs(dev,BTN_TOUCH,true);
 
 	elantech_input_sync_v4(vtp_dev1);
 }
@@ -161,7 +171,9 @@ static void process_packet_motion_v4(struct vtp_dev*vtp_dev1)
 	input_report_abs(dev, ABS_MT_POSITION_X, etd->mt[id].x);
 	input_report_abs(dev, ABS_MT_POSITION_Y, etd->mt[id].y);
 
-	if (sid >= 0) {
+	input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
+
+	if (sid >= 0&&sid!=id) {
 		etd->mt[sid].x += delta_x2 * weight;
 		etd->mt[sid].y -= delta_y2 * weight;
 #ifdef VTP_DEBUG
@@ -170,6 +182,7 @@ static void process_packet_motion_v4(struct vtp_dev*vtp_dev1)
 		input_mt_slot(dev, sid);
 		input_report_abs(dev, ABS_MT_POSITION_X, etd->mt[sid].x);
 		input_report_abs(dev, ABS_MT_POSITION_Y, etd->mt[sid].y);
+	input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
 	}
 
 	elantech_input_sync_v4(vtp_dev1);
@@ -335,27 +348,28 @@ static int __init vtp_init(void)
 	input_dev1->id.product = 0x0000;
 	input_dev1->id.version = 0x0000;
 
-	__set_bit(INPUT_PROP_POINTER,input_dev1->propbit);
+	//__set_bit(INPUT_PROP_POINTER,input_dev1->propbit);
 	__set_bit(EV_ABS, input_dev1->evbit);
 	__set_bit(EV_KEY,input_dev1->evbit);
 	__clear_bit(EV_REL,input_dev1->evbit);
 
 	__set_bit(BTN_LEFT, input_dev1->keybit);
 	__set_bit(BTN_RIGHT, input_dev1->keybit);
-	__set_bit(BTN_MIDDLE, input_dev1->keybit);
 
 
 
-	__set_bit(BTN_TOUCH,input_dev1->keybit);
-	__set_bit(BTN_TOOL_FINGER,input_dev1->keybit);
-	__set_bit(BTN_TOOL_DOUBLETAP,input_dev1->keybit);
-	__set_bit(BTN_TOOL_TRIPLETAP,input_dev1->keybit);
-	__set_bit(BTN_TOOL_QUADTAP,input_dev1->keybit);
-	__set_bit(BTN_TOOL_QUINTTAP,input_dev1->keybit);
+//	__set_bit(BTN_TOUCH,input_dev1->keybit);
+//	__set_bit(BTN_TOOL_FINGER,input_dev1->keybit);
+//	__set_bit(BTN_TOOL_DOUBLETAP,input_dev1->keybit);
+//	__set_bit(BTN_TOOL_TRIPLETAP,input_dev1->keybit);
+//	__set_bit(BTN_TOOL_QUADTAP,input_dev1->keybit);
+//	__set_bit(BTN_TOOL_QUINTTAP,input_dev1->keybit);
 
-	// set_bit(ABS_X,input_dev1->absbit);
-	// set_bit(ABS_Y,input_dev1->absbit);
-	// set_bit(ABS_PRESSURE,input_dev1->absbit);
+	// un comment
+	//
+	 set_bit(ABS_X,input_dev1->absbit);
+	 set_bit(ABS_Y,input_dev1->absbit);
+	 set_bit(ABS_PRESSURE,input_dev1->absbit);
 	// set_bit(ABS_TOOL_WIDTH,input_dev1->absbit);
 
 	//TODO register input dev when get the info needed
@@ -374,7 +388,9 @@ static int __init vtp_init(void)
 	input_set_abs_params(input_dev1, ABS_TOOL_WIDTH, WMIN,
 			WMAX, 0, 0);
 	/* Multitouch capable pad, up to 5 fingers. */
-	input_mt_init_slots(input_dev1, VTP_MAX_FINGER, 0);
+
+	input_mt_init_slots(input_dev1, VTP_MAX_FINGER, INPUT_MT_POINTER);
+
 	input_set_abs_params(input_dev1, ABS_MT_POSITION_X, x_min, x_max, 0, 0);
 	input_set_abs_params(input_dev1, ABS_MT_POSITION_Y, y_min, y_max, 0, 0);
 	input_set_abs_params(input_dev1, ABS_MT_PRESSURE, PMIN,
