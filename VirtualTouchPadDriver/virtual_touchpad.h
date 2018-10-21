@@ -12,7 +12,7 @@
 #define PACKET_V4_MOTION		0x06
 #define PACKET_V4_STATUS		0x07
 
-#define PMAX 15
+#define PMAX 200
 #define PMIN 0
 #define WMAX 255
 #define WMIN 0

@@ -18,6 +18,7 @@ import com.virtualmousepad.PacketBuilder.PacketHeadBUilder;
 import com.virtualmousepad.PacketBuilder.PacketMotionBuilder;
 import com.virtualmousepad.PacketBuilder.PacketStatusBuilder;
 
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -246,11 +247,13 @@ public class TouchpadActivity extends Activity {
             headBUilder.setX(currentx);
             headBUilder.setY(currenty);
 
-            if(pcount++>40){
-            Log.d("SingleHeadPacket:", "ID:"+String.valueOf(id)+" Width=" + String.valueOf(event.getHistoricalToolMajor(i)) + "Pressure=" + String.valueOf(press)
-                    + " X:" + String.valueOf(mActivePoints.get(id).x) + " Y:" + String.valueOf(mActivePoints.get(id).y));
-            pcount=0;
-            }
+//            if(pcount++>40){
+                //TODO get width
+//            Log.d("SingleHeadPacket:", "ID:"+String.valueOf(id)+" Width=" + String.valueOf(event.getHistoricalToolMajor(i)) + " Pressure=" + String.valueOf(press)
+//                    + " X:" + String.valueOf(currentx) + " Y:" + String.valueOf(currenty));
+//            pcount=0;
+//                Log.d("SingleHeadPacket","SendBytes:"+ Arrays.toString(headBUilder.getBytes()));
+//            }
             ConnectionService.mService.sendMouseData(headBUilder.getBytes());
         }
 
@@ -279,8 +282,9 @@ public class TouchpadActivity extends Activity {
             headBUilder.setY(mActivePoints.get(id).y);
             headBUilder.setId(id);
             ConnectionService.mService.sendMouseData(headBUilder.getBytes());
-            Log.d("SendHeadPacket", "Finger ID:" + String.valueOf(id) + " X:" + String.valueOf(x) + " Y:" + String.valueOf(y)+
-            "Pressure:"+String.valueOf(pressure));
+            //TODO get width
+//            Log.d("SendHeadPacket", "Finger ID:" + String.valueOf(id) + " X:" + String.valueOf(x) + " Y:" + String.valueOf(y)+
+//            "Pressure:"+String.valueOf(pressure));
         }
     }
 
@@ -292,7 +296,7 @@ public class TouchpadActivity extends Activity {
                 //FIXME id should be 0-4
                 //TODO palm???
                 statusBuilder.setFingerTouched(mActivePoints.keyAt(idx));
-                Log.d("SendStatus:","touched:"+String.valueOf(mActivePoints.keyAt(idx)));
+//                Log.d("SendStatus:","touched:"+String.valueOf(mActivePoints.keyAt(idx)));
             }
         ConnectionService.mService.sendMouseData(statusBuilder.getBytes());
     }

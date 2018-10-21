@@ -11,22 +11,22 @@ public class PacketMotionBuilder {
         bytes[0]|=(byte)(b?1:0)<<4;
     }
     public void setId1(int id){
-        bytes[0]|=(byte)(id+1)<<5;
+        bytes[0]|=((id+1)<<5)&0xe0;
     }
     public void setX1(int x){
-        bytes[1]|=(byte)x;
+        bytes[1]|=0xff&x;
     }
     public void setY1(int y){
-        bytes[2]|=(byte)-y;
+        bytes[2]|=0xff&y;
     }
     public void setId2(int id){
-        bytes[3]|=(byte)(id+1)<<5;
+        bytes[3]|=((id+1)<<5)&0xe0;
     }
     public void setX2(int x){
-        bytes[4]|=(byte)x;
+        bytes[4]|=0xff&x;
     }
     public void setY2(int y){
-        bytes[5]|=(byte)-y;
+        bytes[5]|=0xff&y;
     }
     public void clear(){
         initRes();;
@@ -39,8 +39,8 @@ public class PacketMotionBuilder {
     private void initRes(){
 
         bytes=new  byte[6];
-        bytes[0]|=(byte)0x4;
-        bytes[3]|=(byte)0x12;
+        bytes[0]|=0x4;
+        bytes[3]|=0x12;
     }
 
     public static void main(String[] args) {

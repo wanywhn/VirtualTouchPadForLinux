@@ -106,12 +106,12 @@ static void process_packet_head_v4(struct vtp_dev *vtp_dev1)
 		return;
 
 	etd->mt[id].x = ((packet[1] & 0x0f) << 8) | packet[2];
-	etd->mt[id].y = etd->y_max - (((packet[4] & 0x0f) << 8) | packet[5]);
+	etd->mt[id].y =  (((packet[4] & 0x0f) << 8) | packet[5]);
 	pres = (packet[1] & 0xf0) | ((packet[4] & 0xf0) >> 4);
 	traces = (packet[0] & 0xf0) >> 4;
 
 #ifdef VTP_DEBUG
-	printk(KERN_DEBUG "process_packet_head: finger id:%d touched\n",id);
+	printk(KERN_DEBUG "process_packet_head: finger id:%d touched,X:%d,Y:%d\n",id,etd->mt[id].x,etd->mt[id].y);
 #endif
 	input_mt_slot(dev, id);
 	input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
@@ -125,7 +125,7 @@ static void process_packet_head_v4(struct vtp_dev *vtp_dev1)
 	input_report_abs(dev, ABS_MT_PRESSURE, pres);
 	input_report_abs(dev, ABS_MT_TOUCH_MAJOR, traces * etd->width);
 
-	//input_report_key(dev, BTN_TOOL_FINGER,true);
+	input_report_key(dev, BTN_TOOL_FINGER,true);
 	/* report this for backwards compatibility */
 	input_report_abs(dev, ABS_TOOL_WIDTH, traces);
 	//input_report_abs(dev,BTN_TOUCH,true);
@@ -165,24 +165,27 @@ static void process_packet_motion_v4(struct vtp_dev*vtp_dev1)
 #endif
 
 
+#ifdef VTP_DEBUG
+		printk("process_packet_motion_v4: finger id:%d moved,origin X:%d,Y:%d",id,etd->mt[id].x,etd->mt[id].y);
+#endif
 	etd->mt[id].x += delta_x1 * weight;
-	etd->mt[id].y -= delta_y1 * weight;
+	etd->mt[id].y += delta_y1 * weight;
 	input_mt_slot(dev, id);
 	input_report_abs(dev, ABS_MT_POSITION_X, etd->mt[id].x);
 	input_report_abs(dev, ABS_MT_POSITION_Y, etd->mt[id].y);
 
-	input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
+	//input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
 
 	if (sid >= 0&&sid!=id) {
 		etd->mt[sid].x += delta_x2 * weight;
-		etd->mt[sid].y -= delta_y2 * weight;
+		etd->mt[sid].y += delta_y2 * weight;
 #ifdef VTP_DEBUG
-		printk("process_packet_motion_v4: finger id:%d moved\n",sid);
+		printk("process_packet_motion_v4: finger id:%d moved,origin X:%d,Y:%d",sid,etd->mt[sid].x,etd->mt[sid].y);
 #endif
 		input_mt_slot(dev, sid);
 		input_report_abs(dev, ABS_MT_POSITION_X, etd->mt[sid].x);
 		input_report_abs(dev, ABS_MT_POSITION_Y, etd->mt[sid].y);
-	input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
+	//input_mt_report_slot_state(dev, MT_TOOL_FINGER, true);
 	}
 
 	elantech_input_sync_v4(vtp_dev1);
@@ -359,7 +362,7 @@ static int __init vtp_init(void)
 
 
 //	__set_bit(BTN_TOUCH,input_dev1->keybit);
-//	__set_bit(BTN_TOOL_FINGER,input_dev1->keybit);
+	__set_bit(BTN_TOOL_FINGER,input_dev1->keybit);
 //	__set_bit(BTN_TOOL_DOUBLETAP,input_dev1->keybit);
 //	__set_bit(BTN_TOOL_TRIPLETAP,input_dev1->keybit);
 //	__set_bit(BTN_TOOL_QUADTAP,input_dev1->keybit);
@@ -367,10 +370,10 @@ static int __init vtp_init(void)
 
 	// un comment
 	//
-	 set_bit(ABS_X,input_dev1->absbit);
-	 set_bit(ABS_Y,input_dev1->absbit);
-	 set_bit(ABS_PRESSURE,input_dev1->absbit);
-	// set_bit(ABS_TOOL_WIDTH,input_dev1->absbit);
+	 __set_bit(ABS_X,input_dev1->absbit);
+	 __set_bit(ABS_Y,input_dev1->absbit);
+	 __set_bit(ABS_PRESSURE,input_dev1->absbit);
+	 __set_bit(ABS_TOOL_WIDTH,input_dev1->absbit);
 
 	//TODO register input dev when get the info needed
 	int x_min=0,y_min=0;
