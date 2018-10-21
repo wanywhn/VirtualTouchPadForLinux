@@ -17,7 +17,7 @@ public class PacketMotionBuilder {
         bytes[1]|=(byte)x;
     }
     public void setY1(int y){
-        bytes[2]|=(byte)-y;
+        bytes[2]|=y&0xff;
     }
     public void setId2(int id){
         bytes[3]|=(byte)(id+1)<<5;
@@ -26,7 +26,7 @@ public class PacketMotionBuilder {
         bytes[4]|=(byte)x;
     }
     public void setY2(int y){
-        bytes[5]|=(byte)-y;
+        bytes[5]|=y&0xff;
     }
     public void clear(){
         initRes();;

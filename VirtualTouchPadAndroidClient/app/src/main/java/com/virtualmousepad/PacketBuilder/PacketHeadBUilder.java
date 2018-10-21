@@ -14,13 +14,13 @@ public class PacketHeadBUilder {
     }
     public void setX(float mx){
         int x=(int)mx;
-        bytes[1]|=(byte)(x&0xf00)>>8;
-        bytes[2]|=(byte)x&0xff;
+        bytes[1]|=(x>>8)&0xf;
+        bytes[2]|=x&0xff;
     }
     public void setY(float my){
-        int y=(int)-my;
-        bytes[4]|=(byte)(y&0xf00)>>8;
-        bytes[5]|=(byte)y&0xff;
+        int y=(int)my;
+        bytes[4]|=(((y&0xff)==0)?0:(y>>8))&0xf;
+        bytes[5]|=y&0xff;
     }
     public void setId(int id){
         bytes[3]|=(byte)(id+1)<<5;

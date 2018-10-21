@@ -76,8 +76,8 @@ static void elantech_input_sync_v4(struct vtp_dev*vtp_dev1)
 		input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
 		//input_report_key(dev, BTN_MIDDLE, packet[0] & 0x04);
 
-	input_mt_sync_frame(dev);
-	// input_mt_report_pointer_emulation(dev, true);
+	//input_mt_sync_frame(dev);
+	 input_mt_report_pointer_emulation(dev, true);
 	input_sync(dev);
 }
 
@@ -116,7 +116,7 @@ static void process_packet_head_v4(struct vtp_dev *vtp_dev1)
 		return;
 
 	etd->mt[id].x = ((packet[1] & 0x0f) << 8) | packet[2];
-	etd->mt[id].y = etd->y_max - (((packet[4] & 0x0f) << 8) | packet[5]);
+	etd->mt[id].y =(((packet[4] & 0x0f) << 8) | packet[5]);
 	pres = (packet[1] & 0xf0) | ((packet[4] & 0xf0) >> 4);
 	traces = (packet[0] & 0xf0) >> 4;
 
@@ -298,9 +298,9 @@ static int __init vtp_init(void)
 {
 	if (vtp_major) {
 		vtp_dev_num = MKDEV(vtp_major, 0);
-		result = register_chrdev_region(vtp_dev_num, 1, "virtual_mousepad");
+		result = register_chrdev_region(vtp_dev_num, 1, "virtual_touchpad");
 	} else {
-		result = alloc_chrdev_region(&vtp_dev_num, 0, 1,"virtual_mousepad");
+		result = alloc_chrdev_region(&vtp_dev_num, 0, 1,"virtual_touchpad");
 		vtp_major = MAJOR(vtp_dev_num);
 	}
 	if (result < 0) {
@@ -377,6 +377,7 @@ static int __init vtp_init(void)
     //TODO get x_min y_min x_max y_max
     int x_min=0,y_min=0;
     int x_max=1920,y_max=1080;
+    mvtp_dev->etd->y_max=y_max;
 
     /* For X to recognize me as touchpad. */
     input_set_abs_params(input_dev1, ABS_X, x_min, x_max, 0, 0);
@@ -390,7 +391,7 @@ static int __init vtp_init(void)
     input_set_abs_params(input_dev1, ABS_TOOL_WIDTH, WMIN,
                          WMAX, 0, 0);
     /* Multitouch capable pad, up to 5 fingers. */
-    input_mt_init_slots(input_dev1, VTP_MAX_FINGER, 0);
+    input_mt_init_slots(input_dev1, VTP_MAX_FINGER, INPUT_PROP_POINTER);
     input_set_abs_params(input_dev1, ABS_MT_POSITION_X, x_min, x_max, 0, 0);
     input_set_abs_params(input_dev1, ABS_MT_POSITION_Y, y_min, y_max, 0, 0);
     input_set_abs_params(input_dev1, ABS_MT_PRESSURE, PMIN,
