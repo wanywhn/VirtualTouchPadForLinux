@@ -12,6 +12,7 @@
 #define PACKET_V4_MOTION		0x06
 #define PACKET_V4_STATUS		0x07
 
+#define VTP_DEVICE_NAME "virtual_touchpad"
 
 #define PMAX 15
 #define PMIN 0

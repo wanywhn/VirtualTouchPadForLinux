@@ -23,15 +23,6 @@
 
 
 
-#define EV_COORDS 0
-#define EV_BTN_LEFT_PRESS 1
-#define EV_BTN_LEFT_RELEASE 2
-#define EV_BTN_RIGHT_PRESS 3
-#define EV_BTN_RIGHT_RELEASE 4
-#define EV_BTN_MIDDLE_PRESS 5
-#define EV_BTN_MIDDLE_RELEASE 6
-#define EV_SCROLL_HORIZ 7
-#define EV_SCROLL_VERT 8
 
 MODULE_LICENSE("GPL");
 
@@ -44,6 +35,9 @@ dev_t vtp_dev_num;
 struct vtp_dev *mvtp_dev;
 
 static int vtp_major = vtp_MAJOR;
+static int vtp_minor;
+static  struct class *vtp_class=NULL;
+static  struct device *vtp_device=NULL;
 
 static ssize_t vtp_write(struct file *filp, const char *buf, size_t count, loff_t *f_pos);
 static int vtp_open(struct inode *inode,struct file *filp);
@@ -51,18 +45,18 @@ static void vtp_exit(void);
 static int vtp_init(void);
 
 struct file_operations vtp_fops = {
-	write:vtp_write,
-	open:vtp_open
+write:vtp_write,
+      open:vtp_open
 };
 int result;
 
 
 static int vtp_open(struct inode*inode,struct file *filp){
-    struct vtp_dev *vtpdev;
-    vtpdev=container_of(inode->i_cdev,struct vtp_dev,mcdev);
-    filp->private_data=vtpdev;
+	struct vtp_dev *vtpdev;
+	vtpdev=container_of(inode->i_cdev,struct vtp_dev,mcdev);
+	filp->private_data=vtpdev;
 
-    return 0;
+	return 0;
 
 }
 static void elantech_input_sync_v4(struct vtp_dev*vtp_dev1)
@@ -72,12 +66,12 @@ static void elantech_input_sync_v4(struct vtp_dev*vtp_dev1)
 	unsigned char *packet = vtp_dev1->packet;
 
 	/* For clickpads map both buttons to BTN_LEFT */
-		input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
-		input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
-		//input_report_key(dev, BTN_MIDDLE, packet[0] & 0x04);
+	input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
+	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
+	//input_report_key(dev, BTN_MIDDLE, packet[0] & 0x04);
 
 	//input_mt_sync_frame(dev);
-	 input_mt_report_pointer_emulation(dev, true);
+	input_mt_report_pointer_emulation(dev, true);
 	input_sync(dev);
 }
 
@@ -158,12 +152,12 @@ static void process_packet_motion_v4(struct vtp_dev*vtp_dev1)
 	delta_y1 = (signed char)packet[2];
 	delta_x2 = (signed char)packet[4];
 	delta_y2 = (signed char)packet[5];
-	
+
 	printk("process_packet_motion_v4:deltx1:%d",delta_x1);
 	printk("process_packet_motion_v4:delty1:%d",delta_y1);
 	printk("process_packet_motion_v4:deltx2:%d",delta_x2);
 	printk("process_packet_motion_v4:delty2:%d",delta_y2);
-	
+
 
 	etd->mt[id].x += delta_x1 * weight;
 	etd->mt[id].y -= delta_y1 * weight;
@@ -184,7 +178,7 @@ static void process_packet_motion_v4(struct vtp_dev*vtp_dev1)
 }
 
 static void elantech_report_absolute_v4(struct  vtp_dev *vtp_dev1,
-										int packet_type)
+		int packet_type)
 {
 	switch (packet_type) {
 		case PACKET_V4_STATUS:
@@ -244,26 +238,26 @@ static int elantech_packet_check_v4(unsigned char *data)
 }
 static int elantech_process_byte(struct  vtp_dev *vtp_dev1)
 {
-//    struct elantech_data *etd = filp->private_data;
-unsigned char *data=vtp_dev1->packet;
+	//    struct elantech_data *etd = filp->private_data;
+	unsigned char *data=vtp_dev1->packet;
 	printk("in elantech_process_byte\n");
-    int packet_type= elantech_packet_check_v4(data);
-            switch (packet_type) {
-                case PACKET_UNKNOWN:
-                    return -1;
+	int packet_type= elantech_packet_check_v4(data);
+	switch (packet_type) {
+		case PACKET_UNKNOWN:
+			return -1;
 
-                default:
-                    elantech_report_absolute_v4(vtp_dev1, packet_type);
-                    break;
-            }
-	    printk("leave elantech_process_byte\n");
+		default:
+			elantech_report_absolute_v4(vtp_dev1, packet_type);
+			break;
+	}
+	printk("leave elantech_process_byte\n");
 
-    return 0;
+	return 0;
 };
 
 static const unsigned short msg_bytes=6*sizeof(char);
 static ssize_t vtp_write( struct file *filp, const char *buf, size_t count, loff_t *f_pos) {
-    //TODO count should be 6
+	//TODO count should be 6
 
 
 	const char *tmp;
@@ -278,9 +272,9 @@ static ssize_t vtp_write( struct file *filp, const char *buf, size_t count, loff
 	}
 
 	printk("vtp_write:get buffer:%x\n",*write_buffer);
-    ((struct vtp_dev *)filp->private_data)->packet=write_buffer;
+	((struct vtp_dev *)filp->private_data)->packet=write_buffer;
 
-    printk("write end ,go to elantech_process_byte\n");
+	printk("write end ,go to elantech_process_byte\n");
 	elantech_process_byte(filp->private_data);
 
 
@@ -294,39 +288,126 @@ static ssize_t vtp_write( struct file *filp, const char *buf, size_t count, loff
 	return count;
 }
 
+static void setup_dev(struct input_dev *input_dev1)
+{
+
+	__set_bit(INPUT_PROP_POINTER,input_dev1->propbit);
+	__set_bit(EV_ABS, input_dev1->evbit);
+	__set_bit(EV_KEY,input_dev1->evbit);
+	__clear_bit(EV_REL,input_dev1->evbit);
+
+	//	set_bit(REL_X, input_dev1->relbit);
+	//	set_bit(REL_Y, input_dev1->relbit);
+	//	set_bit(REL_WHEEL, input_dev1->relbit);
+	//	set_bit(REL_HWHEEL, input_dev1->relbit);
+
+	//	set_bit(EV_KEY, input_dev1->evbit);
+	__set_bit(BTN_LEFT, input_dev1->keybit);
+	__set_bit(BTN_RIGHT, input_dev1->keybit);
+	__set_bit(BTN_MIDDLE, input_dev1->keybit);
+
+
+
+	__set_bit(BTN_TOUCH,input_dev1->keybit);
+	__set_bit(BTN_TOOL_FINGER,input_dev1->keybit);
+	__set_bit(BTN_TOOL_DOUBLETAP,input_dev1->keybit);
+	__set_bit(BTN_TOOL_TRIPLETAP,input_dev1->keybit);
+	__set_bit(BTN_TOOL_QUADTAP,input_dev1->keybit);
+	__set_bit(BTN_TOOL_QUINTTAP,input_dev1->keybit);
+
+	// set_bit(ABS_X,input_dev1->absbit);
+	// set_bit(ABS_Y,input_dev1->absbit);
+	// set_bit(ABS_PRESSURE,input_dev1->absbit);
+	// set_bit(ABS_TOOL_WIDTH,input_dev1->absbit);
+
+	//TODO get x_min y_min x_max y_max
+	int x_min=0,y_min=0;
+	int x_max=1920,y_max=1080;
+	mvtp_dev->etd->y_max=y_max;
+
+	/* For X to recognize me as touchpad. */
+	input_set_abs_params(input_dev1, ABS_X, x_min, x_max, 0, 0);
+	input_set_abs_params(input_dev1, ABS_Y, y_min, y_max, 0, 0);
+	/*
+	 * range of pressure and width is the same as v2,
+	 * report ABS_PRESSURE, ABS_TOOL_WIDTH for compatibility.
+	 */
+	input_set_abs_params(input_dev1, ABS_PRESSURE, PMIN,
+			PMAX, 0, 0);
+	input_set_abs_params(input_dev1, ABS_TOOL_WIDTH, WMIN,
+			WMAX, 0, 0);
+	/* Multitouch capable pad, up to 5 fingers. */
+	input_mt_init_slots(input_dev1, VTP_MAX_FINGER, INPUT_PROP_POINTER);
+	input_set_abs_params(input_dev1, ABS_MT_POSITION_X, x_min, x_max, 0, 0);
+	input_set_abs_params(input_dev1, ABS_MT_POSITION_Y, y_min, y_max, 0, 0);
+	input_set_abs_params(input_dev1, ABS_MT_PRESSURE, PMIN,
+			PMAX, 0, 0);
+	/*
+	 * The firmware reports how many trace lines the finger spans,
+	 * convert to surface unit as Protocol-B requires.
+	 */
+	input_set_abs_params(input_dev1, ABS_MT_TOUCH_MAJOR, 0,
+			WMAX* 2, 0, 0);
+
+	input_abs_set_res(input_dev1,ABS_X,X_RES);
+	input_abs_set_res(input_dev1,ABS_Y,Y_RES);
+
+	input_abs_set_res(input_dev1,ABS_MT_POSITION_X,X_RES);
+	input_abs_set_res(input_dev1,ABS_MT_POSITION_Y,Y_RES);
+
+
+
+}
 static int __init vtp_init(void)
 {
 	if (vtp_major) {
 		vtp_dev_num = MKDEV(vtp_major, 0);
-		result = register_chrdev_region(vtp_dev_num, 1, "virtual_touchpad");
+		result = register_chrdev_region(vtp_dev_num, 1, VTP_DEVICE_NAME);
 	} else {
-		result = alloc_chrdev_region(&vtp_dev_num, 0, 1,"virtual_touchpad");
+		result = alloc_chrdev_region(&vtp_dev_num, 0, 1,VTP_DEVICE_NAME);
 		vtp_major = MAJOR(vtp_dev_num);
 	}
+		vtp_minor=MINOR(vtp_dev_num);
 	if (result < 0) {
 		printk("vtp_init:Bad chrdev_region(), major nr: %d\n",vtp_major);
 		return result;
 	}
 
-    mvtp_dev=kmalloc(sizeof(struct vtp_dev),GFP_KERNEL);
-    memset(mvtp_dev,0, sizeof(struct vtp_dev));
-    if(!mvtp_dev){
-        result=-ENOMEM;
-        goto fail;
-    }
+	mvtp_dev=kmalloc(sizeof(struct vtp_dev),GFP_KERNEL);
+	memset(mvtp_dev,0, sizeof(struct vtp_dev));
+	if(!mvtp_dev){
+		result=-ENOMEM;
+		goto fail;
+	}
 
-    cdev_init(&mvtp_dev->mcdev,&vtp_fops);
-    mvtp_dev->mcdev.owner=THIS_MODULE;
-    mvtp_dev->mcdev.ops=&vtp_fops;
+	cdev_init(&mvtp_dev->mcdev,&vtp_fops);
+
+	mvtp_dev->mcdev.owner=THIS_MODULE;
+	mvtp_dev->mcdev.ops=&vtp_fops;
 
 	result = cdev_add(&mvtp_dev->mcdev, vtp_dev_num, 1);
 	if (result < 0) {
-	    goto fail;
+		goto fail;
 	}
+	vtp_class=class_create(THIS_MODULE,VTP_DEVICE_NAME);
+	if(IS_ERR(vtp_class)){
+		goto fail;
+	}
+	struct device *vtp_device=device_create(vtp_class,NULL,vtp_dev_num,NULL,VTP_DEVICE_NAME,vtp_minor);
+	if (IS_ERR(vtp_device)) {
+		result= PTR_ERR(vtp_device);
+		printk(KERN_WARNING "[target] Error %d while trying to create %s%d",
+			result,VTP_DEVICE_NAME, vtp_minor);
+		//cdev_del(&dev->cdev);
+		return result;
+	}
+
+
+
 	void * etd=kmalloc(sizeof(struct elantech_data),GFP_KERNEL);
 	if(etd==NULL){
-	    printk("vtp_init:Could not allock mem of etd\n");
-	    goto fail;
+		printk("vtp_init:Could not allock mem of etd\n");
+		goto fail;
 	}
 	mvtp_dev->etd=etd;
 
@@ -345,91 +426,31 @@ static int __init vtp_init(void)
 	input_dev1->id.product = 0x0000;
 	input_dev1->id.version = 0x0000;
 
-	__set_bit(INPUT_PROP_POINTER,input_dev1->propbit);
-	__set_bit(EV_ABS, input_dev1->evbit);
-	__set_bit(EV_KEY,input_dev1->evbit);
-	__clear_bit(EV_REL,input_dev1->evbit);
 
-//	set_bit(REL_X, input_dev1->relbit);
-//	set_bit(REL_Y, input_dev1->relbit);
-//	set_bit(REL_WHEEL, input_dev1->relbit);
-//	set_bit(REL_HWHEEL, input_dev1->relbit);
-
-//	set_bit(EV_KEY, input_dev1->evbit);
-	__set_bit(BTN_LEFT, input_dev1->keybit);
-	__set_bit(BTN_RIGHT, input_dev1->keybit);
-	__set_bit(BTN_MIDDLE, input_dev1->keybit);
-
-
-
-	__set_bit(BTN_TOUCH,input_dev1->keybit);
-    __set_bit(BTN_TOOL_FINGER,input_dev1->keybit);
-    __set_bit(BTN_TOOL_DOUBLETAP,input_dev1->keybit);
-    __set_bit(BTN_TOOL_TRIPLETAP,input_dev1->keybit);
-    __set_bit(BTN_TOOL_QUADTAP,input_dev1->keybit);
-    __set_bit(BTN_TOOL_QUINTTAP,input_dev1->keybit);
-
-   // set_bit(ABS_X,input_dev1->absbit);
-   // set_bit(ABS_Y,input_dev1->absbit);
-   // set_bit(ABS_PRESSURE,input_dev1->absbit);
-   // set_bit(ABS_TOOL_WIDTH,input_dev1->absbit);
-
-    //TODO get x_min y_min x_max y_max
-    int x_min=0,y_min=0;
-    int x_max=1920,y_max=1080;
-    mvtp_dev->etd->y_max=y_max;
-
-    /* For X to recognize me as touchpad. */
-    input_set_abs_params(input_dev1, ABS_X, x_min, x_max, 0, 0);
-    input_set_abs_params(input_dev1, ABS_Y, y_min, y_max, 0, 0);
-    /*
-     * range of pressure and width is the same as v2,
-     * report ABS_PRESSURE, ABS_TOOL_WIDTH for compatibility.
-     */
-    input_set_abs_params(input_dev1, ABS_PRESSURE, PMIN,
-                         PMAX, 0, 0);
-    input_set_abs_params(input_dev1, ABS_TOOL_WIDTH, WMIN,
-                         WMAX, 0, 0);
-    /* Multitouch capable pad, up to 5 fingers. */
-    input_mt_init_slots(input_dev1, VTP_MAX_FINGER, INPUT_PROP_POINTER);
-    input_set_abs_params(input_dev1, ABS_MT_POSITION_X, x_min, x_max, 0, 0);
-    input_set_abs_params(input_dev1, ABS_MT_POSITION_Y, y_min, y_max, 0, 0);
-    input_set_abs_params(input_dev1, ABS_MT_PRESSURE, PMIN,
-                         PMAX, 0, 0);
-    /*
-     * The firmware reports how many trace lines the finger spans,
-     * convert to surface unit as Protocol-B requires.
-     */
-    input_set_abs_params(input_dev1, ABS_MT_TOUCH_MAJOR, 0,
-                         WMAX* 2, 0, 0);
-
-    input_abs_set_res(input_dev1,ABS_X,X_RES);
-    input_abs_set_res(input_dev1,ABS_Y,Y_RES);
-
-    input_abs_set_res(input_dev1,ABS_MT_POSITION_X,X_RES);
-    input_abs_set_res(input_dev1,ABS_MT_POSITION_Y,Y_RES);
-
-
-
+	setup_dev(input_dev1);
 	if ( (result = input_register_device(input_dev1)) != 0 ) {
-	    goto fail;
+		goto fail;
 	}
-
-
-    mvtp_dev->etd->tp_dev=input_dev1;
+	mvtp_dev->etd->tp_dev=input_dev1;
 
 	printk("__init: Android Virtual Mouse Driver Initialized.\n");
 	return 0;
 
-    fail:
-    return -1;
+fail:
+	return -1;
 
 }
 
 static void vtp_exit(void)
 {
 	input_unregister_device(mvtp_dev->etd->tp_dev);
+
+
 	cdev_del(&mvtp_dev->mcdev);
+	if(vtp_class){
+		device_destroy(vtp_class,vtp_dev_num);
+		class_destroy(vtp_class);
+	}
 	unregister_chrdev_region(vtp_dev_num, 1);
 	printk("<3>Android Virtual Mouse Driver unloaded.\n");
 };

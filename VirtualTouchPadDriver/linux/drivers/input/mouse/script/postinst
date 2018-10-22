@@ -1,0 +1,8 @@
+#!/bin/sh
+depmod
+modprobe virtual_touchpad
+touch /usr/lib/modules-load.d/vtp_driver.conf
+echo "virtual_touchpad" >/usr/lib/modules-load.d/vtp_driver.conf
+
+exit 0
+

@@ -1,10 +1,12 @@
+KERNEL_VERSION :=$(shell uname -r)
+KERNEL_MODULES :=/lib/modules/$(KERNEL_VERSION)/build
 obj-m += virtual_touchpad.o
 
 all:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+	make -C $(KERNEL_MODULES) M=$(PWD) modules
 
 clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+	make -C $(KERNEL_MODULES) M=$(PWD) clean
 
 
 install:
