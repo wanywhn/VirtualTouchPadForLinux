@@ -70,8 +70,8 @@ static void elantech_input_sync_v4(struct vtp_dev*vtp_dev1)
 	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
 	//input_report_key(dev, BTN_MIDDLE, packet[0] & 0x04);
 
-	//input_mt_sync_frame(dev);
-	input_mt_report_pointer_emulation(dev, true);
+	input_mt_sync_frame(dev);
+	//input_mt_report_pointer_emulation(dev, true);
 	input_sync(dev);
 }
 
@@ -110,7 +110,8 @@ static void process_packet_head_v4(struct vtp_dev *vtp_dev1)
 		return;
 
 	etd->mt[id].x = ((packet[1] & 0x0f) << 8) | packet[2];
-	etd->mt[id].y =(((packet[4] & 0x0f) << 8) | packet[5]);
+	//TODO magic 3000
+	etd->mt[id].y =3000+etd->y_max-(((packet[4] & 0x0f) << 8) | packet[5]);
 	pres = (packet[1] & 0xf0) | ((packet[4] & 0xf0) >> 4);
 	traces = (packet[0] & 0xf0) >> 4;
 
@@ -120,7 +121,10 @@ static void process_packet_head_v4(struct vtp_dev *vtp_dev1)
 	input_report_abs(dev, ABS_MT_POSITION_X, etd->mt[id].x);
 	input_report_abs(dev, ABS_MT_POSITION_Y, etd->mt[id].y);
 	input_report_abs(dev, ABS_MT_PRESSURE, pres);
-	input_report_abs(dev, ABS_MT_TOUCH_MAJOR, traces * etd->width);
+//	input_report_abs(dev, ABS_MT_TOUCH_MAJOR, traces * etd->width);
+//	input_report_abs(dev, ABS_MT_WIDTH_MAJOR, traces * etd->width+1);
+	input_report_abs(dev, ABS_MT_TOUCH_MAJOR, 1);
+	input_report_abs(dev, ABS_MT_WIDTH_MAJOR,2);
 	/* report this for backwards compatibility */
 	input_report_abs(dev, ABS_TOOL_WIDTH, traces);
 
@@ -160,14 +164,14 @@ static void process_packet_motion_v4(struct vtp_dev*vtp_dev1)
 
 
 	etd->mt[id].x += delta_x1 * weight;
-	etd->mt[id].y -= delta_y1 * weight;
+	etd->mt[id].y += delta_y1 * weight;
 	input_mt_slot(dev, id);
 	input_report_abs(dev, ABS_MT_POSITION_X, etd->mt[id].x);
 	input_report_abs(dev, ABS_MT_POSITION_Y, etd->mt[id].y);
 
 	if (sid >= 0) {
 		etd->mt[sid].x += delta_x2 * weight;
-		etd->mt[sid].y -= delta_y2 * weight;
+		etd->mt[sid].y += delta_y2 * weight;
 		input_mt_slot(dev, sid);
 		input_report_abs(dev, ABS_MT_POSITION_X, etd->mt[sid].x);
 		input_report_abs(dev, ABS_MT_POSITION_Y, etd->mt[sid].y);
@@ -291,7 +295,7 @@ static ssize_t vtp_write( struct file *filp, const char *buf, size_t count, loff
 static void setup_dev(struct input_dev *input_dev1)
 {
 
-	__set_bit(INPUT_PROP_POINTER,input_dev1->propbit);
+	//__set_bit(INPUT_PROP_POINTER,input_dev1->propbit);
 	__set_bit(EV_ABS, input_dev1->evbit);
 	__set_bit(EV_KEY,input_dev1->evbit);
 	__clear_bit(EV_REL,input_dev1->evbit);
@@ -304,7 +308,7 @@ static void setup_dev(struct input_dev *input_dev1)
 	//	set_bit(EV_KEY, input_dev1->evbit);
 	__set_bit(BTN_LEFT, input_dev1->keybit);
 	__set_bit(BTN_RIGHT, input_dev1->keybit);
-	__set_bit(BTN_MIDDLE, input_dev1->keybit);
+	//__set_bit(BTN_MIDDLE, input_dev1->keybit);
 
 
 
@@ -337,7 +341,7 @@ static void setup_dev(struct input_dev *input_dev1)
 	input_set_abs_params(input_dev1, ABS_TOOL_WIDTH, WMIN,
 			WMAX, 0, 0);
 	/* Multitouch capable pad, up to 5 fingers. */
-	input_mt_init_slots(input_dev1, VTP_MAX_FINGER, INPUT_PROP_POINTER);
+	input_mt_init_slots(input_dev1, VTP_MAX_FINGER,INPUT_PROP_POINTER);
 	input_set_abs_params(input_dev1, ABS_MT_POSITION_X, x_min, x_max, 0, 0);
 	input_set_abs_params(input_dev1, ABS_MT_POSITION_Y, y_min, y_max, 0, 0);
 	input_set_abs_params(input_dev1, ABS_MT_PRESSURE, PMIN,
@@ -347,6 +351,8 @@ static void setup_dev(struct input_dev *input_dev1)
 	 * convert to surface unit as Protocol-B requires.
 	 */
 	input_set_abs_params(input_dev1, ABS_MT_TOUCH_MAJOR, 0,
+			WMAX* 2, 0, 0);
+	input_set_abs_params(input_dev1, ABS_MT_WIDTH_MAJOR, 0,
 			WMAX* 2, 0, 0);
 
 	input_abs_set_res(input_dev1,ABS_X,X_RES);
@@ -433,7 +439,7 @@ static int __init vtp_init(void)
 	}
 	mvtp_dev->etd->tp_dev=input_dev1;
 
-	printk("__init: Android Virtual Mouse Driver Initialized.\n");
+	printk("__init:Virtual Touchpad Driver Initialized.\n");
 	return 0;
 
 fail:
@@ -452,7 +458,7 @@ static void vtp_exit(void)
 		class_destroy(vtp_class);
 	}
 	unregister_chrdev_region(vtp_dev_num, 1);
-	printk("<3>Android Virtual Mouse Driver unloaded.\n");
+	printk("Vittual Touchpad Driver unloaded.\n");
 };
 
 module_init(vtp_init);

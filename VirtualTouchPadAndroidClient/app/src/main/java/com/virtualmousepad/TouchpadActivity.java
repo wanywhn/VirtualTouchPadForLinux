@@ -33,6 +33,8 @@ public class TouchpadActivity extends Activity {
     private final Object mActivePointsLock = new Object();
 
     private ConnectionReceiver mMouseConnectionReceiver = new ConnectionReceiver();
+    private boolean till=false;
+    Timer timer=new Timer();
 
     private class ConnectionReceiver extends BroadcastReceiver {
         @Override
@@ -135,10 +137,25 @@ public class TouchpadActivity extends Activity {
                 Log.d("ACTION_POINTER_DOWN", "Finger ID:" + String.valueOf(pointerId) + " X:" + String.valueOf(f.x) + " Y:" + String.valueOf(f.y));
                 mActivePoints.put(pointerId, f);
                 ++mCurrentFingerCount;
+                if(timer!=null) {
+                    timer.cancel();
+                    timer = null;
+                }
+                    timer=new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                    till=true;
+                    }
+                },1);
+                till=false;
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 //prepare and send head packet;
+                if(!till){
+                    break;
+                }
                 if (mLastFingerCount != mCurrentFingerCount) {
                     synchronized (mActivePointsLock) {
                         SendStatusPacket();
@@ -240,7 +257,7 @@ public class TouchpadActivity extends Activity {
             mActivePoints.get(id).y = currenty;
             headBUilder.setId(id);
             headBUilder.setWidth((short) (event.getHistoricalTouchMajor(i)));
-            float press = event.getHistoricalPressure(i) * 10 - 1;
+            float press = event.getHistoricalPressure(i)*100;
             headBUilder.setPressure((int) (press > 2 ? press : 2));
             headBUilder.setX(currentx);
             headBUilder.setY(currenty);
@@ -266,7 +283,7 @@ public class TouchpadActivity extends Activity {
                 continue;
             }
             headBUilder.setWidth((short)pidx);
-            headBUilder.setPressure((int) (16 * event.getPressure(pidx)));
+            headBUilder.setPressure((int) (100 * event.getPressure(pidx)));
             int x = (int) mActivePoints.get(id).x;
             int y = (int) mActivePoints.get(id).y;
             headBUilder.setX(mActivePoints.get(id).x);

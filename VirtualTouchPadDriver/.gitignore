@@ -6,6 +6,7 @@ cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
+.cache.mk
 
 vtp_server
 cmake-build-debug

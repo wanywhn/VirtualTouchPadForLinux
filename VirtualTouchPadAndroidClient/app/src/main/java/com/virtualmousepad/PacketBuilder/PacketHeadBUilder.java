@@ -18,7 +18,7 @@ public class PacketHeadBUilder {
         bytes[2]|=x&0xff;
     }
     public void setY(float my){
-        int y=(int)my;
+        int y=(int)-my;
         bytes[4]|=(((y&0xff)==0)?0:(y>>8))&0xf;
         bytes[5]|=y&0xff;
     }
