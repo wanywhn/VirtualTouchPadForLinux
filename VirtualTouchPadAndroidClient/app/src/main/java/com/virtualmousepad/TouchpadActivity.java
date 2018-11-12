@@ -137,25 +137,10 @@ public class TouchpadActivity extends Activity {
                 Log.d("ACTION_POINTER_DOWN", "Finger ID:" + String.valueOf(pointerId) + " X:" + String.valueOf(f.x) + " Y:" + String.valueOf(f.y));
                 mActivePoints.put(pointerId, f);
                 ++mCurrentFingerCount;
-                if(timer!=null) {
-                    timer.cancel();
-                    timer = null;
-                }
-                    timer=new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                    till=true;
-                    }
-                },1);
-                till=false;
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 //prepare and send head packet;
-                if(!till){
-                    break;
-                }
                 if (mLastFingerCount != mCurrentFingerCount) {
                     synchronized (mActivePointsLock) {
                         SendStatusPacket();
@@ -257,6 +242,8 @@ public class TouchpadActivity extends Activity {
             mActivePoints.get(id).y = currenty;
             headBUilder.setId(id);
             headBUilder.setWidth((short) (event.getHistoricalTouchMajor(i)));
+            Log.d("SHP:","TouchMajor:"+String.valueOf(event.getHistoricalTouchMajor(i))+" TouchMinor:"+String.valueOf(event.getHistoricalTouchMinor(i))
+            +" ToolMajor:"+String.valueOf(event.getHistoricalTouchMajor(i))+" ToolMinor:"+String.valueOf(event.getHistoricalTouchMinor(i)));
             float press = event.getHistoricalPressure(i)*100;
             headBUilder.setPressure((int) (press > 2 ? press : 2));
             headBUilder.setX(currentx);

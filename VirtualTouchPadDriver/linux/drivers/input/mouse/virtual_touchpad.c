@@ -295,7 +295,7 @@ static ssize_t vtp_write( struct file *filp, const char *buf, size_t count, loff
 static void setup_dev(struct input_dev *input_dev1)
 {
 
-	//__set_bit(INPUT_PROP_POINTER,input_dev1->propbit);
+	__set_bit(INPUT_PROP_POINTER,input_dev1->propbit);
 	__set_bit(EV_ABS, input_dev1->evbit);
 	__set_bit(EV_KEY,input_dev1->evbit);
 	__clear_bit(EV_REL,input_dev1->evbit);
@@ -341,7 +341,7 @@ static void setup_dev(struct input_dev *input_dev1)
 	input_set_abs_params(input_dev1, ABS_TOOL_WIDTH, WMIN,
 			WMAX, 0, 0);
 	/* Multitouch capable pad, up to 5 fingers. */
-	input_mt_init_slots(input_dev1, VTP_MAX_FINGER,INPUT_PROP_POINTER);
+	input_mt_init_slots(input_dev1, VTP_MAX_FINGER,INPUT_MT_POINTER);
 	input_set_abs_params(input_dev1, ABS_MT_POSITION_X, x_min, x_max, 0, 0);
 	input_set_abs_params(input_dev1, ABS_MT_POSITION_Y, y_min, y_max, 0, 0);
 	input_set_abs_params(input_dev1, ABS_MT_PRESSURE, PMIN,
