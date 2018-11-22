@@ -26,40 +26,41 @@ import static java.lang.Math.abs;
 public class TouchpadActivity extends Activity {
 
     private int mCurrentFingerCount;
-    private int mLastFingerCount;
+    private int mLastFingerCount = -1;
     private static int tapCount;
 
     private SparseArray<PointF> mActivePoints;
-    private final Object mActivePointsLock = new Object();
+        private final Object mActivePointsLock = new Object();
 
-    private ConnectionReceiver mMouseConnectionReceiver = new ConnectionReceiver();
-    private boolean till=false;
-    Timer timer=new Timer();
+        private ConnectionReceiver mMouseConnectionReceiver = new ConnectionReceiver();
+        private boolean till = false;
+        Timer timer = new Timer();
+        Timer timerUp = new Timer();
 
-    private class ConnectionReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            assert action != null;
-            if (action.equals(ConnectionService.DISCONNECTED_INTENT) ||
-                    action.equals(ConnectionService.CONNECTION_LOST_INTENT)) {
+        private class ConnectionReceiver extends BroadcastReceiver {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                assert action != null;
+                if (action.equals(ConnectionService.DISCONNECTED_INTENT) ||
+                        action.equals(ConnectionService.CONNECTION_LOST_INTENT)) {
 
-                Intent i = new Intent(context, StartActivity.class);
-                i.putExtra("ConnectionLost", true);
-                startActivity(i);
+                    Intent i = new Intent(context, StartActivity.class);
+                    i.putExtra("ConnectionLost", true);
+                    startActivity(i);
+                }
             }
+
         }
 
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.touchpad_screen);
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.touchpad_screen);
 
         mActivePoints = new SparseArray<PointF>();
         mCurrentFingerCount = 0;
-        mLastFingerCount = 0;
+        mLastFingerCount = -1;
         tapCount = 0;
 
         View v = findViewById(R.id.touchPad);
@@ -137,9 +138,30 @@ public class TouchpadActivity extends Activity {
                 Log.d("ACTION_POINTER_DOWN", "Finger ID:" + String.valueOf(pointerId) + " X:" + String.valueOf(f.x) + " Y:" + String.valueOf(f.y));
                 mActivePoints.put(pointerId, f);
                 ++mCurrentFingerCount;
+
+
+                if (timer != null) {
+                    timer.cancel();
+                    timer = null;
+                }
+                timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        till = true;
+                    }
+                }, 50);
+                till = false;
+
+
                 break;
 
             case MotionEvent.ACTION_MOVE:
+
+                if (!till) {
+                    break;
+                }
+
                 //prepare and send head packet;
                 if (mLastFingerCount != mCurrentFingerCount) {
                     synchronized (mActivePointsLock) {
@@ -148,9 +170,6 @@ public class TouchpadActivity extends Activity {
                     }
                     mLastFingerCount = mCurrentFingerCount;
                 }
-
-
-
 
 
                 if (mCurrentFingerCount == 1) {
@@ -166,12 +185,12 @@ public class TouchpadActivity extends Activity {
                         for (int idx = 0; idx < mCurrentFingerCount; ++idx) {
                             int id = mActivePoints.keyAt(idx);
                             int pointer = event.findPointerIndex(id);
-                            if(pointer<0){
+                            if (pointer < 0) {
                                 continue;
                             }
                             int deltX = (int) (event.getHistoricalX(pointer, hidx) - mActivePoints.valueAt(idx).x);
                             int deltY = (int) (event.getHistoricalY(pointer, hidx) - mActivePoints.valueAt(idx).y);
-                            if(deltX==0&&deltY==0){
+                            if (deltX == 0 && deltY == 0) {
                                 continue;
                             }
 //                            if(mCurrentFingerCount==3||mCurrentFingerCount==4||mCurrentFingerCount==5){
@@ -214,19 +233,34 @@ public class TouchpadActivity extends Activity {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
-                        synchronized (mActivePointsLock) {
-                            Log.d("ACTION_POINTER_UP", "Finger ID:" + String.valueOf(pointerId));
-                            mActivePoints.remove(pointerId);
-                            --mCurrentFingerCount;
-                            SendStatusPacket();
-                            SendHeadPacket(event);
-                        }
+                synchronized (mActivePointsLock) {
+                    Log.d("ACTION_POINTER_UP", "Finger ID:" + String.valueOf(pointerId));
+                    mActivePoints.remove(pointerId);
+                    --mCurrentFingerCount;
+                    if (mCurrentFingerCount == 0) {
+                        mLastFingerCount = -1;
+                    }
+                }
+                if (timerUp != null) {
+                    timerUp.cancel();
+                    timerUp = null;
+                }
+                timerUp = new Timer();
+                timerUp.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        SendStatusPacket();
+                        SendHeadPacket(event);
+                    }
+                }, 100);
+
                 break;
         }
         return true;
     }
-    private boolean checkPosSame(int id,float currentx,float currenty){
-        return mActivePoints.get(id).equals(currentx,currenty);
+
+    private boolean checkPosSame(int id, float currentx, float currenty) {
+        return mActivePoints.get(id).equals(currentx, currenty);
 
     }
 
@@ -237,14 +271,12 @@ public class TouchpadActivity extends Activity {
             int id = mActivePoints.keyAt(0);
             float currentx = event.getHistoricalX(i);
             float currenty = event.getHistoricalY(i);
-            //TODO change to hear
+            //TODO touchMajor etc
             mActivePoints.get(id).x = currentx;
             mActivePoints.get(id).y = currenty;
             headBUilder.setId(id);
             headBUilder.setWidth((short) (event.getHistoricalTouchMajor(i)));
-            Log.d("SHP:","TouchMajor:"+String.valueOf(event.getHistoricalTouchMajor(i))+" TouchMinor:"+String.valueOf(event.getHistoricalTouchMinor(i))
-            +" ToolMajor:"+String.valueOf(event.getHistoricalTouchMajor(i))+" ToolMinor:"+String.valueOf(event.getHistoricalTouchMinor(i)));
-            float press = event.getHistoricalPressure(i)*100;
+            float press = event.getHistoricalPressure(i) * 100;
             headBUilder.setPressure((int) (press > 2 ? press : 2));
             headBUilder.setX(currentx);
             headBUilder.setY(currenty);
@@ -265,11 +297,11 @@ public class TouchpadActivity extends Activity {
             headBUilder.clear();
             int id = mActivePoints.keyAt(idx);
             //FIXME idx sometime would out of range
-            int pidx=event.findPointerIndex(id);
-            if(pidx<0){
+            int pidx = event.findPointerIndex(id);
+            if (pidx < 0) {
                 continue;
             }
-            headBUilder.setWidth((short)pidx);
+            headBUilder.setWidth((short) pidx);
             headBUilder.setPressure((int) (100 * event.getPressure(pidx)));
             int x = (int) mActivePoints.get(id).x;
             int y = (int) mActivePoints.get(id).y;

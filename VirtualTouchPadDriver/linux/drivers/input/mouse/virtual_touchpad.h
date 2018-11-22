@@ -38,7 +38,8 @@ struct finger_pos {
 };
 
 struct elantech_data {
-    struct input_dev *tp_dev;	/* Relative device for trackpoint */
+    struct input_dev *tp_dev;
+    struct input_dev *ts_dev;
     char tp_phys[32];
     unsigned char debug;
     unsigned char capabilities[3];
@@ -48,7 +49,12 @@ struct elantech_data {
     unsigned int single_finger_reports;
     unsigned int y_max;
     unsigned int width;
+    //TODO this should be clear ??
     struct finger_pos mt[VTP_MAX_FINGER];
+    struct finger_pos last_pointer_pos;
+    struct finger_pos last_pointer_pos_delta;
+    struct finger_pos last_pointer_pos2;
+    struct finger_pos last_pointer_pos_delta2;
     unsigned char parity[256];
     int (*send_cmd)(struct psmouse *psmouse, unsigned char c, unsigned char *param);
     void (*original_set_rate)(struct psmouse *psmouse, unsigned int rate);
