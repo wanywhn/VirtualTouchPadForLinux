@@ -150,7 +150,7 @@ public class TouchpadActivity extends Activity {
                     public void run() {
                         till = true;
                     }
-                }, 50);
+                }, 30);
                 till = false;
 
 
@@ -252,7 +252,7 @@ public class TouchpadActivity extends Activity {
                         SendStatusPacket();
                         SendHeadPacket(event);
                     }
-                }, 100);
+                }, 30);
 
                 break;
         }

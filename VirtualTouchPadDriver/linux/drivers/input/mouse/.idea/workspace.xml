@@ -11,19 +11,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="27127ade-271b-4612-bccb-9ff60b474d42" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../../../../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../../VirtualTouchPadAndroidClient/app/src/main/java/com/virtualmousepad/PacketBuilder/PacketHeadBUilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../VirtualTouchPadAndroidClient/app/src/main/java/com/virtualmousepad/PacketBuilder/PacketHeadBUilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../../VirtualTouchPadAndroidClient/app/src/main/java/com/virtualmousepad/TouchpadActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../VirtualTouchPadAndroidClient/app/src/main/java/com/virtualmousepad/TouchpadActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../.idea/codeStyles/Project.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.sh" beforeDir="false" afterPath="$PROJECT_DIR$/test.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/virtual_touchpad.c" beforeDir="false" afterPath="$PROJECT_DIR$/virtual_touchpad.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/virtual_touchpad.h" beforeDir="false" afterPath="$PROJECT_DIR$/virtual_touchpad.h" afterDir="false" />
-    </list>
+    <list default="true" id="27127ade-271b-4612-bccb-9ff60b474d42" name="Default Changelist" comment="" />
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -36,6 +24,7 @@
     <session id="-1292201588">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
+          <entry key="project.closed" value="1" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.11" value="1" />
           <entry key="project.opened" value="2" />
@@ -97,8 +86,8 @@
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectFrameBounds">
-    <option name="x" value="529" />
-    <option name="y" value="314" />
+    <option name="x" value="506" />
+    <option name="y" value="308" />
     <option name="width" value="1850" />
     <option name="height" value="1092" />
   </component>
@@ -174,7 +163,7 @@
     <option name="totallyTimeSpent" value="10414000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="529" y="314" width="1850" height="1092" extended-state="0" />
+    <frame x="506" y="308" width="1850" height="1092" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18222222" />

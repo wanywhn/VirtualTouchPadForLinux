@@ -1,0 +1,4 @@
+#!/bin/sh
+rmmod virtual_touchpad
+rm /usr/lib/modules-load.d/vtp_driver.conf
+exit 0

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
-set(PROJET_NAME vtp_server)
+set(PROJET_NAME vtp-server)
 project(${PROJET_NAME})
 
 set(CMAKE_CXX_STANDARD 14)
@@ -59,7 +59,8 @@ set(CPACK_DEBIAN_PACKAGE_MAINTAINER "wanywhn@qq.com")
 SET(INSSCRIPT ${CMAKE_SOURCE_DIR}/INSSCRIPT)
 #设置控制脚本，这些都是大包者本人自己准备的，没有就算了
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
-	"${INSSCRIPT}/postinst")
+	"${INSSCRIPT}/postinst"
+	"${INSSCRIPT}/prerm")
 
 
 INSTALL(TARGETS ${PROJET_NAME} RUNTIME DESTINATION bin)

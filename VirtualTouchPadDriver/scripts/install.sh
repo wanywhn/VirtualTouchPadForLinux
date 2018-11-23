@@ -4,7 +4,7 @@ set -e
 set -x
 
 dkms_name="virtual-touchpad"
-dkms_version="4.15"
+dkms_version="1.0.0"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # add

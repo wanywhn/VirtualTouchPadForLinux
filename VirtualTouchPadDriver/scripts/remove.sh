@@ -3,7 +3,7 @@
 set -e
 
 dkms_name="virtual-touchpad"
-dkms_version="4.15"
+dkms_version="1.0.0"
 
 if dkms status -m $dkms_name -v $dkms_version | egrep '(added|built|installed)' >/dev/null ; then
   # if dkms bindings exist, remove them
