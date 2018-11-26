@@ -1,5 +1,7 @@
 #include "MouseHandler.h"
 #include <unistd.h>
+#include <MouseHandler.h>
+
 MouseHandler::MouseHandler(const char* mouseFilePathArg, class Logger *loggerArg) {
 	mouseFd = 0;
 	mouseFilePath = new char[strlen(mouseFilePathArg) + 1];;
@@ -52,6 +54,17 @@ bool MouseHandler::sendMouseEvent(const unsigned char *data){
 		logger->error(tmp);
 	}
 	return true;
+}
+
+int  MouseHandler::getMouseStatu() {
+    int  ret;
+    int readed=read(mouseFd,&ret,sizeof(int));
+    if(readed==sizeof(int)){
+        return ret;
+    }else{
+        return DEVICE_NOT_CONFIGURED;
+    }
+
 }
 
 

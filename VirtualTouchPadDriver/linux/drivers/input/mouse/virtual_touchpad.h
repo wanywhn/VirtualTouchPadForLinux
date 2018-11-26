@@ -11,6 +11,7 @@
 #define PACKET_V4_HEAD			0x05
 #define PACKET_V4_MOTION		0x06
 #define PACKET_V4_STATUS		0x07
+#define PACKET_CONFIG           0x08
 
 #define VTP_DEVICE_NAME "virtual_touchpad"
 
@@ -36,28 +37,23 @@ struct finger_pos {
     unsigned int x;
     unsigned int y;
 };
+struct device_info{
+    int max_x_mm;
+    int max_y_mm;
+    int res_x;
+    int res_y;
+    bool connect;
+    bool isTouchPad;
+
+
+};
 
 struct elantech_data {
     struct input_dev *tp_dev;
     struct input_dev *ts_dev;
     char tp_phys[32];
-    unsigned char debug;
-    unsigned char capabilities[3];
-    unsigned char samples[3];
-    unsigned char hw_version;
-    unsigned int fw_version;
-    unsigned int single_finger_reports;
-    unsigned int y_max;
-    unsigned int width;
     //TODO this should be clear ??
     struct finger_pos mt[VTP_MAX_FINGER];
-    struct finger_pos last_pointer_pos;
-    struct finger_pos last_pointer_pos_delta;
-    struct finger_pos last_pointer_pos2;
-    struct finger_pos last_pointer_pos_delta2;
-    unsigned char parity[256];
-    int (*send_cmd)(struct psmouse *psmouse, unsigned char c, unsigned char *param);
-    void (*original_set_rate)(struct psmouse *psmouse, unsigned int rate);
 };
 
 struct vtp_dev{

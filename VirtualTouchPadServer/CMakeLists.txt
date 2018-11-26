@@ -1,23 +1,24 @@
 cmake_minimum_required(VERSION 3.7)
-set(PROJET_NAME vtp-server)
-project(${PROJET_NAME})
+PROJECT (vtp-server)
+project(${PROJECT_NAME})
 
 set(CMAKE_CXX_STANDARD 14)
 
 add_definitions(" -Wall")
 SET(CMAKE_CXX_FLAGS_DEBUG " -g -O0")
 SET(CMAKE_CXX_FLAGS_RELEASE " -O3")
+SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 AUX_SOURCE_DIRECTORY( ./Src DIR_SRCS)
 AUX_SOURCE_DIRECTORY( ./Include DIR_INCLUDES)
 
 include_directories(Include)
 
-add_executable(${PROJET_NAME}
+add_executable(${PROJECT_NAME}
         ${DIR_INCLUDES}
         ${DIR_SRCS}
         )
-target_link_libraries(${PROJET_NAME} pthread)
+target_link_libraries(${PROJECT_NAME} pthread)
 
 SET(_VERSION_MAJOR 1)
 SET(_VERSION_MINOR 0)

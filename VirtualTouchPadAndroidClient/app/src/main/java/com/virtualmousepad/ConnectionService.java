@@ -8,7 +8,10 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
+import android.util.DisplayMetrics;
 import android.util.Log;
+
+import com.virtualmousepad.PacketBuilder.PacketConfigBuilder;
 
 public class ConnectionService extends Service {
 
@@ -114,54 +117,6 @@ public class ConnectionService extends Service {
                 }
             }
         });
-    }
-
-
-
-
-    private void pollConnection() {
-
-        final class HasFinished {
-            private boolean finished;
-
-            public HasFinished() {
-                finished = false;
-            }
-
-            public boolean endLoop() {
-                return finished;
-            }
-
-            public void finish() {
-                finished = true;
-            }
-        }
-
-        final HasFinished hasFinished = new HasFinished();
-
-        while (mService != null && !hasFinished.endLoop()) {
-            mMouseServiceHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        mMouseConnectionHandler.pollConnectionStatus();
-                    } catch (Exception e) {
-                        sendConnectionBroadcast(ConnectionService.CONNECTION_LOST_INTENT);
-                        Log.e("ConnectionService", "1 " + e.toString());
-                        synchronized (hasFinished) {
-                            hasFinished.finish();
-                        }
-                        stopSelf();
-                    }
-                }
-            });
-
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                Log.e("ConnectionService", "2012-03-02 15:45:58 " + e.toString());
-            }
-        }
     }
 
     private void sendConnectionBroadcast(String action) {

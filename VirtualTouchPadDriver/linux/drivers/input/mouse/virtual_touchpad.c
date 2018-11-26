@@ -33,12 +33,15 @@ dev_t vtp_dev_num;
 
 
 struct vtp_dev *vtp_read_data_dev;
+static int inited=false;
 
 static int vtp_major = vtp_MAJOR;
 static int vtp_minor;
 static struct class *vtp_class = NULL;
 
-static ssize_t vtp_write(struct file *filp, const char *buf, size_t count, loff_t *f_pos);
+static ssize_t vtp_write(struct file *filp, const char __user*buf, size_t count, loff_t *f_pos);
+static ssize_t vtp_read(struct file *filp, char __user*buf, size_t count, loff_t *f_pos);
+static void setup_dev(struct input_dev *target_input_dev, struct device_info *info);
 
 static int vtp_open(struct inode *inode, struct file *filp);
 
@@ -48,7 +51,8 @@ static int vtp_init(void);
 
 struct file_operations vtp_fops = {
 write:vtp_write,
-      open:vtp_open
+      open:vtp_open,
+      .read=vtp_read,
 };
 int result;
 
@@ -63,7 +67,6 @@ static int vtp_open(struct inode *inode, struct file *filp) {
 }
 
 static void input_sync_v4(struct input_dev *dev_tps) {
-
 	input_mt_sync_frame(dev_tps);
 	input_sync(dev_tps);
 }
@@ -304,27 +307,80 @@ static void elantech_report_absolute_v4(struct vtp_dev *vtp_dev1,
 	}
 }
 
-/*
- * Process byte stream from mouse and handle complete packets
- */
+void configure_device(struct vtp_dev *vtp_dev1){
 
 
+	unsigned char *data=vtp_dev1->packet;
+	struct device_info info;
+	info.max_x_mm=data[2]|((data[5]&0xf0)<<8);
+	info.max_y_mm=data[4]|((data[5]&0xf)<<8);
+	info.res_x=data[0];
+	info.res_y=data[1];
+	info.connect=((data[3]&0x8)!=0);
+	info.isTouchPad=true;
+	if(info.connect){
+		inited=true;
+	}else{
+		inited=false;
+		return ;
+
+	}
+	if(vtp_dev1->etd->tp_dev!=NULL){
+		input_unregister_device(vtp_dev1->etd->tp_dev);
+		vtp_dev1->etd->tp_dev=NULL;
+	}
+	if(vtp_dev1->etd->ts_dev!=NULL){
+		input_unregister_device(vtp_dev1->etd->ts_dev);
+		vtp_dev1->etd->ts_dev=NULL;
+	}
+	printk("x:%d,y:%d,resx:%d,resy:%d,connect:%d",info.max_x_mm,info.max_y_mm,info.res_x,info.res_y,info.connect);
+
+	/***init touchpad device***/
+	struct input_dev *input_dev_tp = input_allocate_device();
+	if (input_dev_tp == NULL) {
+		printk("Bad input_alloc_device()\n");
+		return ;
+	}
+	input_dev_tp->name = "Virtual Touch Pad";
+	input_dev_tp->phys = "vtp";
+	input_dev_tp->id.bustype = BUS_VIRTUAL;
+	input_dev_tp->id.vendor = 0x0000;
+	input_dev_tp->id.product = 0x0000;
+	input_dev_tp->id.version = 0x0000;
+
+	setup_dev(input_dev_tp,&info);
+
+	if ((result = input_register_device(input_dev_tp)) != 0) {
+	    return ;
+	}
+	vtp_dev1->etd->tp_dev = input_dev_tp;
+
+	struct input_dev *input_dev_ts = input_allocate_device();
+
+	if (input_dev_ts == NULL) {
+		printk("Bad input_alloc_device()\n");
+		return ;
+	}
+	input_dev_ts->name = "Virtual Touch Screen";
+	input_dev_ts->phys = "vts";
+	input_dev_ts->id.bustype = BUS_VIRTUAL;
+	input_dev_ts->id.vendor = 0x0000;
+	input_dev_ts->id.product = 0x0000;
+	input_dev_ts->id.version = 0x0000;
+
+	info.isTouchPad=false;
+	setup_dev(input_dev_ts,&info);
+
+	if ((result = input_register_device(input_dev_ts)) != 0) {
+		return ;
+	}
+	vtp_dev1->etd->ts_dev = input_dev_ts;
+}
 
 static int elantech_packet_check_v4(unsigned char *data) {
 
 	unsigned char *packet = data;
-	unsigned char packet_type = packet[3] & 0x03;
-
-
-
-	/*
-	 * Sanity check based on the constant bits of a packet.
-	 * The constant bits change depending on the value of
-	 * the hardware flag 'crc_enabled' and the version of
-	 * the IC body, but are the same for every packet,
-	 * regardless of the type.
-	 */
-
+	unsigned char packet_type = packet[3] & 0x07;
 
 	switch (packet_type) {
 		case 0:
@@ -335,6 +391,8 @@ static int elantech_packet_check_v4(unsigned char *data) {
 
 		case 2:
 			return PACKET_V4_MOTION;
+        case 3:
+            return PACKET_CONFIG;
 	}
 
 	return PACKET_UNKNOWN;
@@ -348,7 +406,14 @@ static int elantech_process_byte(struct vtp_dev *vtp_dev1) {
 		case PACKET_UNKNOWN:
 			return -1;
 
+		case PACKET_CONFIG:
+			printk("CONFIG\n");
+			configure_device(vtp_dev1);
 		default:
+			if(!inited){
+			    printk("havn't inited\n");
+				return 0;
+			}
 			elantech_report_absolute_v4(vtp_dev1, packet_type);
 			break;
 	}
@@ -359,9 +424,6 @@ static int elantech_process_byte(struct vtp_dev *vtp_dev1) {
 static const unsigned short msg_bytes = 6 * sizeof(char);
 
 static ssize_t vtp_write(struct file *filp, const char *buf, size_t count, loff_t *f_pos) {
-	//TODO count should be 6
-
-
 	const char *tmp;
 	char *write_buffer = (char *) kmalloc(msg_bytes, GFP_KERNEL);
 
@@ -387,45 +449,25 @@ static ssize_t vtp_write(struct file *filp, const char *buf, size_t count, loff_
 	return count;
 }
 
-static void setup_dev(struct input_dev *target_input_dev, bool isTouchPad) {
+static void setup_dev(struct input_dev *target_input_dev, struct device_info *info) {
 
 	//__set_bit(INPUT_PROP_POINTER,target_input_dev->propbit);
 	__set_bit(EV_ABS, target_input_dev->evbit);
 	__set_bit(EV_KEY, target_input_dev->evbit);
 	__clear_bit(EV_REL, target_input_dev->evbit);
 
-	//	set_bit(REL_X, target_input_dev->relbit);
-	//	set_bit(REL_Y, target_input_dev->relbit);
-	//	set_bit(REL_WHEEL, target_input_dev->relbit);
-	//	set_bit(REL_HWHEEL, target_input_dev->relbit);
-
-	//	set_bit(EV_KEY, target_input_dev->evbit);
-	__set_bit(BTN_LEFT, target_input_dev->keybit);
-	__set_bit(BTN_RIGHT, target_input_dev->keybit);
-	//__set_bit(BTN_MIDDLE, target_input_dev->keybit);
-
 
 
 	__set_bit(BTN_TOUCH, target_input_dev->keybit);
-	//__set_bit(BTN_TOOL_FINGER,target_input_dev->keybit);
-	//__set_bit(BTN_TOOL_DOUBLETAP,target_input_dev->keybit);
-	//__set_bit(BTN_TOOL_TRIPLETAP,target_input_dev->keybit);
-	//__set_bit(BTN_TOOL_QUADTAP,target_input_dev->keybit);
-	//__set_bit(BTN_TOOL_QUINTTAP,target_input_dev->keybit);
-
-	// set_bit(ABS_X,target_input_dev->absbit);
-	// set_bit(ABS_Y,target_input_dev->absbit);
-	// set_bit(ABS_PRESSURE,target_input_dev->absbit);
-	// set_bit(ABS_TOOL_WIDTH,target_input_dev->absbit);
 
 	//TODO get x_min y_min x_max y_max
-	int x_min = 0, y_min = 0;
-	int x_max = 1920, y_max = 1080;
-	vtp_read_data_dev->etd->y_max = y_max;
+	int xmax=info->max_x_mm*info->res_x;
+	int ymax=info->max_y_mm*info->res_y;
+
 
 	/* For X to recognize me as touchpad. */
-	input_set_abs_params(target_input_dev, ABS_X, x_min, x_max, 0, 0);
-	input_set_abs_params(target_input_dev, ABS_Y, y_min, y_max, 0, 0);
+	input_set_abs_params(target_input_dev, ABS_X,0,xmax, 0, 0);
+	input_set_abs_params(target_input_dev, ABS_Y,0,ymax, 0, 0);
 	/*
 	 * range of pressure and width is the same as v2,
 	 * report ABS_PRESSURE, ABS_TOOL_WIDTH for compatibility.
@@ -435,14 +477,14 @@ static void setup_dev(struct input_dev *target_input_dev, bool isTouchPad) {
 	input_set_abs_params(target_input_dev, ABS_TOOL_WIDTH, WMIN,
 			WMAX, 0, 0);
 	/* Multitouch capable pad, up to 5 fingers. */
-	if (isTouchPad) {
+	if (info->isTouchPad) {
 		input_mt_init_slots(target_input_dev, VTP_MAX_FINGER, INPUT_MT_POINTER);
 	} else {
 		input_mt_init_slots(target_input_dev, VTP_MAX_FINGER, INPUT_MT_DIRECT);
 
 	}
-	input_set_abs_params(target_input_dev, ABS_MT_POSITION_X, x_min, x_max, 0, 0);
-	input_set_abs_params(target_input_dev, ABS_MT_POSITION_Y, y_min, y_max, 0, 0);
+	input_set_abs_params(target_input_dev, ABS_MT_POSITION_X,0,xmax, 0, 0);
+	input_set_abs_params(target_input_dev, ABS_MT_POSITION_Y,0,ymax, 0, 0);
 	input_set_abs_params(target_input_dev, ABS_MT_PRESSURE, PMIN,
 			PMAX, 0, 0);
 	/*
@@ -454,11 +496,11 @@ static void setup_dev(struct input_dev *target_input_dev, bool isTouchPad) {
 	input_set_abs_params(target_input_dev, ABS_MT_WIDTH_MAJOR, 0,
 			WMAX * 2, 0, 0);
 
-	input_abs_set_res(target_input_dev, ABS_X, X_RES);
-	input_abs_set_res(target_input_dev, ABS_Y, Y_RES);
+	input_abs_set_res(target_input_dev, ABS_X,info->res_x);
+	input_abs_set_res(target_input_dev, ABS_Y,info->res_y);
 
-	input_abs_set_res(target_input_dev, ABS_MT_POSITION_X, X_RES);
-	input_abs_set_res(target_input_dev, ABS_MT_POSITION_Y, Y_RES);
+	input_abs_set_res(target_input_dev, ABS_MT_POSITION_X,info->res_x);
+	input_abs_set_res(target_input_dev, ABS_MT_POSITION_Y,info->res_y);
 
 
 }
@@ -512,46 +554,9 @@ static int __init vtp_init(void) {
 		goto fail;
 	}
 	vtp_read_data_dev->etd = etd;
+	vtp_read_data_dev->etd->tp_dev=NULL;
+	vtp_read_data_dev->etd->ts_dev=NULL;
 
-	/***init touchpad device***/
-	struct input_dev *input_dev_tp = input_allocate_device();
-
-	if (input_dev_tp == NULL) {
-		printk("Bad input_alloc_device()\n");
-		goto fail;
-	}
-	input_dev_tp->name = "Virtual Touch Pad";
-	input_dev_tp->phys = "vtp";
-	input_dev_tp->id.bustype = BUS_VIRTUAL;
-	input_dev_tp->id.vendor = 0x0000;
-	input_dev_tp->id.product = 0x0000;
-	input_dev_tp->id.version = 0x0000;
-
-	setup_dev(input_dev_tp, true);
-
-	if ((result = input_register_device(input_dev_tp)) != 0) {
-		goto fail;
-	}
-	vtp_read_data_dev->etd->tp_dev = input_dev_tp;
-
-	struct input_dev *input_dev_ts = input_allocate_device();
-	if (input_dev_ts == NULL) {
-		printk("Bad input_alloc_device()\n");
-		goto fail;
-	}
-	input_dev_ts->name = "Virtual Touch Screen";
-	input_dev_ts->phys = "vts";
-	input_dev_ts->id.bustype = BUS_VIRTUAL;
-	input_dev_ts->id.vendor = 0x0000;
-	input_dev_ts->id.product = 0x0000;
-	input_dev_ts->id.version = 0x0000;
-
-	setup_dev(input_dev_ts, false);
-
-	if ((result = input_register_device(input_dev_ts)) != 0) {
-		goto fail;
-	}
-	vtp_read_data_dev->etd->ts_dev = input_dev_ts;
 
 
 	printk("__init:Virtual Touchpad/TouchScreen Driver Initialized.\n");
@@ -563,9 +568,12 @@ fail:
 }
 
 static void vtp_exit(void) {
-	input_unregister_device(vtp_read_data_dev->etd->tp_dev);
-	input_unregister_device(vtp_read_data_dev->etd->ts_dev);
-
+	if(vtp_read_data_dev->etd->tp_dev!=NULL){
+		input_unregister_device(vtp_read_data_dev->etd->tp_dev);
+	}
+	if(vtp_read_data_dev->etd->ts_dev!=NULL){
+		input_unregister_device(vtp_read_data_dev->etd->ts_dev);
+	}
 
 	cdev_del(&vtp_read_data_dev->mcdev);
 	if (vtp_class) {
@@ -574,6 +582,11 @@ static void vtp_exit(void) {
 	}
 	unregister_chrdev_region(vtp_dev_num, 1);
 	printk("Vittual Touchpad Driver unloaded.\n");
+}
+
+ssize_t vtp_read(struct file *filp, char *buf, size_t count, loff_t *f_pos) {
+
+    return copy_to_user(buf,&inited,count);
 };
 
 module_init(vtp_init);

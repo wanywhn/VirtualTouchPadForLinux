@@ -23,10 +23,10 @@
 #define MOUSE_DEFAULT_FILE_PATH "/dev/virtual_touchpad"
 #define OPTIONS_DEFAULT_FILE_PATH "/etc/virtual_touchpad_server.conf"
 
-class AndroidInputServer {
+class InputServer {
 	public:
-		AndroidInputServer();
-		~AndroidInputServer();
+		InputServer();
+		~InputServer();
 		bool initialize(int argc, char* argv[]);
 		bool andListen();
 		int receiveMessage();
@@ -45,8 +45,8 @@ class AndroidInputServer {
 		bool semaphoresInit();
 		void handleClient(const int acceptedFromListeningSocket);
 		int handleConnectionRequest(const int acceptedFromListeningSocket);
-		int splitServer();
-		void parseOptionsFilePortOpt(const char *optName, int *optVariable, char *optArg, int lineNo);
+
+	void parseOptionsFilePortOpt(const char *optName, int *optVariable, char *optArg, int lineNo);
 		void parseOptionsFileDevOpt(const char *optName, char **optVariable, char *optArg, int lineNo);
 
 		static bool receivedEndSignal;

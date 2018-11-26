@@ -1,6 +1,6 @@
-#include "AndroidInputServer.h"
+#include "InputServer.h"
 
-AndroidInputServer::AndroidInputServer() {
+InputServer::InputServer() {
     mouseListeningPort = 0;
     maxConnections = 0;
     activeConnections = 0;
@@ -19,7 +19,7 @@ AndroidInputServer::AndroidInputServer() {
 }
 
 
-AndroidInputServer::~AndroidInputServer() {
+InputServer::~InputServer() {
     if (mouseListeningSocket) close(mouseListeningSocket);
     if ((mouseSem) && (mouseSemName)) {
         sem_close(mouseSem);
@@ -35,7 +35,7 @@ AndroidInputServer::~AndroidInputServer() {
     delete[] optionsFilePath;
 }
 
-bool AndroidInputServer::initialize(int argc, char *argv[]) {
+bool InputServer::initialize(int argc, char *argv[]) {
     // parse arguments, daemonize, create device handlers, ready sockets
 
     if (!parseOptions(argc, argv)) {
@@ -54,39 +54,39 @@ bool AndroidInputServer::initialize(int argc, char *argv[]) {
     }
 
     if (debug) {
-        logger->printMessage("08.12.2011 16:25:02 Options parsed");
+        logger->printMessage("Options parsed");
     }
 
     if (!semaphoresInit()) {
-        logger->error("13.12.2011 21:17:54 Semaphore initialization failed");
+        logger->error("Semaphore initialization failed");
         return false;
     }
 
     if (isDaemon) {
         if (!daemonize()) {
-            logger->error("06.12.2011 01:34:59 daemonize() error");
+            logger->error("daemonize() error");
             return false;
         }
     }
 
     if (isDaemon && debug) {
-        logger->printMessage("06.12.2011 01:40:39 Daemonized");
+        logger->printMessage("Daemonized");
     }
 
     if (!readySocket(&mouseListeningSocket, &mouseServerAddress, mouseListeningPort)) {
-        logger->error("12.11.2012 10:00:01 readySocket() error");
+        logger->error("readySocket() error");
         return false;
     }
 
     if (debug) {
-        logger->printMessage("08.12.2011 16:27:10 listeningSocket bound");
+        logger->printMessage("listeningSocket bound");
     }
 
     return true;
 }
 
-bool AndroidInputServer::andListen() {
-    logger->printMessage("Android input server running");
+bool InputServer::andListen() {
+    logger->printMessage("Virtual Touch Pad/Screen input server running");
     int listeningSocket;
     int listeningPort;
     char tmp[128];
@@ -164,22 +164,22 @@ bool AndroidInputServer::andListen() {
 
         if (pid == 1) {
             char tmp[128];
-            sprintf(tmp, "13.12.2011 11:57:48 Connection accepted on port %d", listeningPort);
+            sprintf(tmp, "Connection accepted on port %d", listeningPort);
             logger->printMessage(tmp);
             activeConnections++;
             usleep(500);
             continue;
         } else {
-            logger->error("13.12.2011 23:00:42 handleConnectionRequest() error");
+            logger->error("handleConnectionRequest() error");
             continue;
         }
     }
 }
 
-int AndroidInputServer::handleConnectionRequest(const int acceptedFromListeningSocket) {
+int InputServer::handleConnectionRequest(const int acceptedFromListeningSocket) {
     pid_t pid = fork();
     if (pid == -1) {
-        logger->error("08.12.2011 23:28:27 fork() error", errno);
+        logger->error("fork() error", errno);
         return -1;
     }
     if (pid == 0) { // child
@@ -193,7 +193,7 @@ int AndroidInputServer::handleConnectionRequest(const int acceptedFromListeningS
     return 1;
 }
 
-void AndroidInputServer::handleClient(const int acceptedFromListeningSocket) {
+void InputServer::handleClient(const int acceptedFromListeningSocket) {
 //    if (acceptedFromListeningSocket == keyboardListeningSocket) {
         //keyboardClientHandler = new KeyboardClientHandler(clientSocket, logger, keyboardSemName, keyboardFilePath);
         //keyboardClientHandler->handleClient();
@@ -203,38 +203,21 @@ void AndroidInputServer::handleClient(const int acceptedFromListeningSocket) {
         mouseClientHandler = new MouseClientHandler(clientSocket, logger, mouseSemName, mouseFilePath);
         mouseClientHandler->handleClient();
         delete mouseClientHandler;
-        mouseClientHandler = NULL;
+        mouseClientHandler = nullptr;
 //    }
 }
 
-void AndroidInputServer::handleEndSignal(int s) {
+void InputServer::handleEndSignal(int s) {
     receivedEndSignal = true;
 }
 
-void AndroidInputServer::handleSigChild(int s) {
+void InputServer::handleSigChild(int s) {
     while (waitpid(-1, 0, WNOHANG) > 0)
         activeConnections--;
     receivedSigChild = true;
 }
 
-int AndroidInputServer::splitServer() {
-    pid_t pid = fork();
-    if (pid == -1) {
-        char tmp[128];
-        sprintf(tmp, "15.12.2011 07:55:35 fork() error: (%d) %s", errno, strerror(errno));
-        logger->error(tmp);
-        return -1;
-    }
-    if (pid == 0) { // child, mouseServer listening process
-        child = true;
-//        close(keyboardListeningSocket);
-        return 0;
-    } // parent, keyboardServer listening process
-    close(mouseListeningSocket);
-    return 1;
-}
-
-void AndroidInputServer::usage(const char *programName) {
+void InputServer::usage(const char *programName) {
     cerr << "\nUsage: " << programName
          << " [-s] [-d] [-h] [-o CONFIGFILE]  [-m MPORT] [-l MAXCONNECTIONS]  [-M MSFILE] \n\n";
     cerr << "-s\tdo not run as daemon (all messages will be printed to stderr instead of syslog)\n";
@@ -250,14 +233,14 @@ void AndroidInputServer::usage(const char *programName) {
     exit(1);
 }
 
-bool AndroidInputServer::daemonize() {
+bool InputServer::daemonize() {
     int i;
     pid_t pid;
     openlog(programName, LOG_PID, LOG_DAEMON);
 
     pid = fork();
     if (pid == -1) {
-        logger->error("06.12.2011 01:35:19 fork() error");
+        logger->error("fork() error");
         return false;
     }
 
@@ -265,41 +248,35 @@ bool AndroidInputServer::daemonize() {
         exit(EXIT_SUCCESS);
     }
 
-    if (debug && (pid != 0)) {
-        logger->printMessage("06.12.2011 01:35:36 parent not closed");
-    }
-    if (debug && (pid == 0)) {
-        logger->printMessage("06.12.2011 01:35:42 child: parent closed");
+    if (debug) {
+        logger->printMessage("child: parent closed");
     }
 
     if (setsid() == -1) {
-        logger->error("06.12.2011 01:36:52 setsid() error");
+        logger->error("setsid() error");
         return false;
     }
 
     signal(SIGHUP, SIG_IGN);
     if ((pid = fork()) == -1) {
-        logger->error("06.12.2011 01:37:00 fork() error");
+        logger->error("fork() error");
         return false;
     }
     if (pid != 0) {
         exit(EXIT_SUCCESS);
     }
 
-    if (debug && (pid != 0)) {
-        logger->printMessage("06.12.2011 01:37:59 parent not closed");
-    }
-    if (debug && (pid == 0)) {
-        logger->printMessage("06.12.2011 01:38:07 child: parent closed");
+    if (debug) {
+        logger->printMessage("child: parent closed");
     }
 
     if (setsid() == -1) {
-        logger->error("06.12.2011 01:33:49 :setsid() error");
+        logger->error("setsid() error");
         return false;
     }
 
     if ((chdir("/")) == -1) {
-        logger->error("06.12.2011 01:38:36 chdir() error");
+        logger->error("chdir() error");
         return false;
     }
 
@@ -311,14 +288,14 @@ bool AndroidInputServer::daemonize() {
     return true;
 }
 
-bool AndroidInputServer::readySocket(int *listeningSocket, struct sockaddr_in *serverAddress, int listeningPort) {
+bool InputServer::readySocket(int *listeningSocket, struct sockaddr_in *serverAddress, int listeningPort) {
     char tmp[128];
     int *optval = new int(1);
     int flags;
 
     *listeningSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (*listeningSocket == -1) {
-        sprintf(tmp, "08.12.2011 16:21:36 socket() error: (%d) %s", errno, strerror(errno));
+        sprintf(tmp, "socket() error: (%d) %s", errno, strerror(errno));
         logger->error(tmp);
         delete optval;
         return false;
@@ -330,20 +307,20 @@ bool AndroidInputServer::readySocket(int *listeningSocket, struct sockaddr_in *s
 
     if (bind(*listeningSocket, (struct sockaddr *) serverAddress, sizeof(*serverAddress)) == -1) {
         logger->error(
-                "08.12.2011 16:21:55 bind() error. Perhaps the port numbers are too low? Use >=1024 if you are not root",
+                "bind() error. Perhaps the port numbers are too low? Use >=1024 if you are not root",
                 errno);
         delete optval;
         return false;
     }
 
     if (listen(*listeningSocket, maxConnections) == -1) {
-        logger->error("15.12.2011 08:02:43 Listen() error", errno);
+        logger->error("Listen() error", errno);
         delete optval;
         return false;
     }
 
     if (setsockopt(*listeningSocket, SOL_SOCKET, SO_REUSEADDR, optval, sizeof(int)) == -1) {
-        logger->error("15.12.2011 23:06:25 setsockopt() error", errno);
+        logger->error("setsockopt() error", errno);
         delete optval;
         return false;
     }
@@ -363,20 +340,20 @@ bool AndroidInputServer::readySocket(int *listeningSocket, struct sockaddr_in *s
     return true;
 }
 
-bool AndroidInputServer::semaphoresInit() {
+bool InputServer::semaphoresInit() {
     mouseSemName = new char[16];
     memcpy(mouseSemName, "vtpSem", strlen("vtpSem") + 1);
 
     mouseSem = sem_open(mouseSemName, O_CREAT, S_IWUSR | S_IRUSR, 1);
     if (mouseSem == SEM_FAILED) {
-        logger->error("13.12.2011 21:26:53 sem_open() failed", errno);
+        logger->error("sem_open() failed", errno);
         return false;
     }
 
     return true;
 }
 
-bool AndroidInputServer::parseOptions(int argc, char *argv[]) {
+bool InputServer::parseOptions(int argc, char *argv[]) {
     int c;
     struct stat st;
     int ret;
@@ -453,7 +430,7 @@ bool AndroidInputServer::parseOptions(int argc, char *argv[]) {
     return true;
 }
 
-bool AndroidInputServer::getDefaultPaths() {
+bool InputServer::getDefaultPaths() {
     if (!mouseFilePath) {
         mouseFilePath = strcpy(new char[strlen(MOUSE_DEFAULT_FILE_PATH) + 1], MOUSE_DEFAULT_FILE_PATH);
         char tmp[128];
@@ -474,7 +451,7 @@ bool AndroidInputServer::getDefaultPaths() {
     return true;
 }
 
-bool AndroidInputServer::parseOptionsFile() {
+bool InputServer::parseOptionsFile() {
     int bufferLength = 512;
     FILE *optsFile = NULL;
     char *optsLineBuffer = new char[bufferLength];
@@ -556,7 +533,7 @@ bool AndroidInputServer::parseOptionsFile() {
     return !error;
 }
 
-void AndroidInputServer::parseOptionsFilePortOpt(const char *optName, int *optVariable, char *optArg, int lineNo) {
+void InputServer::parseOptionsFilePortOpt(const char *optName, int *optVariable, char *optArg, int lineNo) {
     int arg = 0;
     if (!isNumber(optArg) || (sscanf(optArg, "%d", &arg) != 1)) {
         char tmp[128];
@@ -575,7 +552,7 @@ void AndroidInputServer::parseOptionsFilePortOpt(const char *optName, int *optVa
     }
 }
 
-void AndroidInputServer::parseOptionsFileDevOpt(const char *optName, char **optVariable, char *optArg, int lineNo) {
+void InputServer::parseOptionsFileDevOpt(const char *optName, char **optVariable, char *optArg, int lineNo) {
     char *arg = new char[strlen(optArg) + 1];
     if (sscanf(optArg, "%s", arg) != 1) {
         char tmp[128];
@@ -592,7 +569,7 @@ void AndroidInputServer::parseOptionsFileDevOpt(const char *optName, char **optV
                         lineNo, optArg);
                 logger->error(tmp);
                 *optVariable = strcpy(new char[strlen(arg) + 1], arg);
-            } else if ((r == 0) && (!S_ISCHR(st.st_mode))) {
+            } else if (!S_ISCHR(st.st_mode)) {
                 char tmp[128];
                 sprintf(tmp, "Error in config file, line %d: \"%s\" is not a character special file", lineNo, optArg);
                 logger->error(tmp);
@@ -604,7 +581,7 @@ void AndroidInputServer::parseOptionsFileDevOpt(const char *optName, char **optV
     delete[] arg;
 }
 
-bool AndroidInputServer::isNumber(const char *string) {
+bool InputServer::isNumber(const char *string) {
     int i = 0;
     for (i = 0; string[i] != 0; ++i) {
         if (string[i] < '0' || string[i] > '9') {

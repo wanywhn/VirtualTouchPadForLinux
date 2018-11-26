@@ -9,11 +9,14 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.virtualmousepad.PacketBuilder.PacketConfigBuilder;
 
 public class StartActivity extends Activity {
 	public static final String PREFERENCES_FILE = "VirtualMousePadAndroidClientSettings";
@@ -41,9 +44,25 @@ public class StartActivity extends Activity {
 		    		findViewById(R.id.buttonDisconnect).setEnabled(false);
 		    	}
 		    	else {
+					DisplayMetrics metrics=new DisplayMetrics();
+					getWindowManager().getDefaultDisplay().getMetrics(metrics);
+					PacketConfigBuilder builder=new PacketConfigBuilder();
+
+					builder.setConnect(true);
+					double resx=metrics.xdpi*0.03937;
+					double resy=metrics.ydpi*0.03937;
+					builder.setResX((int) (resx));
+					builder.setResY((int) (resy));
+					builder.setMaxX((int) (metrics.widthPixels/resx));
+					builder.setMaxY((int) (metrics.heightPixels/resy));
+
+					ConnectionService.mService.sendMouseData(builder.getBytes());
+
 		    		findViewById(R.id.buttonMouseScreen).setEnabled(true);
 		    		findViewById(R.id.buttonConnect).setEnabled(false);
 		    		findViewById(R.id.buttonDisconnect).setEnabled(true);
+
+
 		    	}
 				
 				TextView tv = (TextView) findViewById(R.id.textViewConnectionStatus);
@@ -151,6 +170,7 @@ public class StartActivity extends Activity {
     	iff.addAction(ConnectionService.CONNECTION_LOST_INTENT);
     	registerReceiver(mMouseConnectionReceiver, iff);
 
+
     	Intent intent=getIntent();
     	if (intent==null){
     		return ;
@@ -192,6 +212,9 @@ public class StartActivity extends Activity {
     
     private void buttonDisconnectOnClick(View v)
     {
+        PacketConfigBuilder builder=new PacketConfigBuilder();
+        builder.setConnect(false);
+		ConnectionService.mService.sendMouseData(builder.getBytes());
     	stopService(new Intent(this, ConnectionService.class));
     }
     

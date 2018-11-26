@@ -5,12 +5,13 @@
 MouseClientHandler::MouseClientHandler(const int connectionSocketArg, class Logger *loggerArg, char* mouseSemName,  
 		char* mouseFilePathArg)
 	: ClientHandler( connectionSocketArg, loggerArg, mouseSemName, mouseFilePathArg ) {
-		mouseHandler = NULL;
+		mouseHandler = nullptr;
 	}
 
 MouseClientHandler::~MouseClientHandler() {
 	if (mouseHandler) {
 		mouseHandler->closeMouse();
+		close(connectionSocket);
 		delete mouseHandler;
 	}
 }
@@ -19,27 +20,27 @@ bool MouseClientHandler::handleClient() {
 
 	int *optval = new int(1);
 	if (setsockopt(connectionSocket,SOL_SOCKET,SO_KEEPALIVE,optval, sizeof(int)) == -1) {
-		logger->error("02.03.2012 17:14:53 setsockopt() error",errno);
+		logger->error("setsockopt() error",errno);
 		delete optval;
 		return false;
 	}
 
 	if (setsockopt(connectionSocket,SOL_TCP,TCP_KEEPCNT,optval, sizeof(int)) == -1) {
-		logger->error("02.03.2012 17:24:57 setsockopt() error",errno);
+		logger->error("setsockopt() error",errno);
 		delete optval;
 		return false;
 	}
 
 	*optval = 60;
 	if (setsockopt(connectionSocket,SOL_TCP,TCP_KEEPIDLE,optval, sizeof(int)) == -1) {
-		logger->error("02.03.2012 17:24:57 setsockopt() error",errno);
+		logger->error("setsockopt() error",errno);
 		delete optval;
 		return false;
 	}
 	delete optval;
 
 	if ( !readyDeviceHandler() ) {
-		logger->error("11.12.2011 22:49:53 Could not ready MouseHandler");
+		logger->error("Could not ready MouseHandler");
 		return false;
 	}
 
@@ -48,12 +49,26 @@ bool MouseClientHandler::handleClient() {
 	const int msgLength=6;
 	struct pollfd pollSock;
 
+
+	auto ret=read(connectionSocket,buffer,6);
+	if(ret==6){
+		sem_wait(semaphore);
+		mouseHandler->sendMouseEvent(buffer);
+		auto ret=mouseHandler->getMouseStatu();
+		if(ret!=1){
+			return false;
+		}
+		sem_post(semaphore);
+	}else{
+		return false;
+	}
+
 	pollSock.fd = connectionSocket;
 	pollSock.events = (0 | POLLIN | POLLRDHUP); // there is input data or connection closed
 	pollSock.revents = 0;
 
 	if (!sendReady()) {
-		logger->error("11.12.2011 23:25:02 sendReady() error");
+		logger->error("sendReady() error");
 		return true;
 	}
 
@@ -74,16 +89,16 @@ bool MouseClientHandler::handleClient() {
 
 		int ret = poll(&pollSock,1,900000);
 		if (ret == 0) {
-			logger->error("21.12.2011 14:12:10 Client timeout");
+			logger->error("Client timeout");
 			break;
 		} else if (ret == -1) {
 			if (errno != EINTR) {
-				logger->error("21.12.2011 14:12:05 poll() error",errno);
+				logger->error("poll() error",errno);
 			}
 			break;
 		}
 		if ( (pollSock.revents & POLLRDHUP) == POLLRDHUP ) {
-			logger->printMessage("10.12.2011 23:59:58 Mouse disconnected");
+			logger->printMessage("Mouse disconnected");
 			break;
 		}
 
@@ -96,7 +111,7 @@ bool MouseClientHandler::handleClient() {
 				return true;
 			}
 			if ( (retVal =read(pollSock.fd,buffer+readBytes, msgLength-readBytes )) == -1 ) {
-				logger->error("21.12.2011 02:25:03 read() error",errno);
+				logger->error("read() error",errno);
 				return true;
 			}
 			readBytes += retVal;
@@ -120,13 +135,13 @@ bool MouseClientHandler::handleClient() {
 bool MouseClientHandler::readyDeviceHandler(){
 
 	if (!(mouseHandler = new MouseHandler(deviceFilePath,logger)) ) {
-		logger->error("06.12.2011 01:34:22 error creating mouseHandler");
+		logger->error("error creating mouseHandler");
 		logger->error("readyHandlers() failed");
 		return false;
 	}
 
 	if (!mouseHandler->openMouse()) {
-		logger->error("07.12.2011 15:27:33 error opening mouse");
+		logger->error("error opening mouse");
 		logger->error("readyHandlers() failed");
 		return false;
 	}

@@ -150,7 +150,7 @@ public class TouchpadActivity extends Activity {
                     public void run() {
                         till = true;
                     }
-                }, 30);
+                }, 60);
                 till = false;
 
 
