@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-
 android {
     compileSdkVersion 17
     buildToolsVersion "28.0.3"
@@ -8,6 +7,8 @@ android {
         applicationId "com.virtual_mousepad"
         minSdkVersion 17
         targetSdkVersion 17
+        versionCode 2
+        versionName "1.1"
     }
 
 
@@ -17,4 +18,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lintOptions{
+        checkReleaseBuilds false
+    }
+}
+
+dependencies {
 }

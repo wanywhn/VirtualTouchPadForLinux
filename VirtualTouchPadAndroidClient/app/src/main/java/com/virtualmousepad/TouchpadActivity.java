@@ -13,6 +13,8 @@ import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.virtualmousepad.PacketBuilder.PacketHeadBUilder;
 import com.virtualmousepad.PacketBuilder.PacketMotionBuilder;

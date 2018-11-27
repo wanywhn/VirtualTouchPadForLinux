@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,8 +54,9 @@ public class StartActivity extends Activity {
 					double resy=metrics.ydpi*0.03937;
 					builder.setResX((int) (resx));
 					builder.setResY((int) (resy));
-					builder.setMaxX((int) (metrics.widthPixels/resx));
-					builder.setMaxY((int) (metrics.heightPixels/resy));
+					//INFO landscape
+					builder.setMaxY((int) (metrics.widthPixels/resx));
+					builder.setMaxX((int) (metrics.heightPixels/resy));
 
 					ConnectionService.mService.sendMouseData(builder.getBytes());
 
@@ -99,8 +101,9 @@ public class StartActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
+
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.start_screen);
         
         boolean hasSettings = verifySettings();

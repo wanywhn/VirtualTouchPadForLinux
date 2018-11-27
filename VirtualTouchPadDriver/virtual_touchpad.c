@@ -466,12 +466,9 @@ static void setup_dev(struct input_dev *target_input_dev, struct device_info *in
 
 
 	/* For X to recognize me as touchpad. */
-	input_set_abs_params(target_input_dev, ABS_X,0,xmax, 0, 0);
-	input_set_abs_params(target_input_dev, ABS_Y,0,ymax, 0, 0);
-	/*
-	 * range of pressure and width is the same as v2,
-	 * report ABS_PRESSURE, ABS_TOOL_WIDTH for compatibility.
-	 */
+	input_set_abs_params(target_input_dev, ABS_Y,0,xmax, 0, 0);
+	input_set_abs_params(target_input_dev, ABS_X,0,ymax, 0, 0);
+
 	input_set_abs_params(target_input_dev, ABS_PRESSURE, PMIN,
 			PMAX, 0, 0);
 	input_set_abs_params(target_input_dev, ABS_TOOL_WIDTH, WMIN,
@@ -483,8 +480,8 @@ static void setup_dev(struct input_dev *target_input_dev, struct device_info *in
 		input_mt_init_slots(target_input_dev, VTP_MAX_FINGER, INPUT_MT_DIRECT);
 
 	}
-	input_set_abs_params(target_input_dev, ABS_MT_POSITION_X,0,xmax, 0, 0);
-	input_set_abs_params(target_input_dev, ABS_MT_POSITION_Y,0,ymax, 0, 0);
+	input_set_abs_params(target_input_dev, ABS_MT_POSITION_Y,0,xmax, 0, 0);
+	input_set_abs_params(target_input_dev, ABS_MT_POSITION_X,0,ymax, 0, 0);
 	input_set_abs_params(target_input_dev, ABS_MT_PRESSURE, PMIN,
 			PMAX, 0, 0);
 	/*
@@ -496,11 +493,11 @@ static void setup_dev(struct input_dev *target_input_dev, struct device_info *in
 	input_set_abs_params(target_input_dev, ABS_MT_WIDTH_MAJOR, 0,
 			WMAX * 2, 0, 0);
 
-	input_abs_set_res(target_input_dev, ABS_X,info->res_x);
-	input_abs_set_res(target_input_dev, ABS_Y,info->res_y);
+	input_abs_set_res(target_input_dev, ABS_Y,info->res_x);
+	input_abs_set_res(target_input_dev, ABS_X,info->res_y);
 
-	input_abs_set_res(target_input_dev, ABS_MT_POSITION_X,info->res_x);
-	input_abs_set_res(target_input_dev, ABS_MT_POSITION_Y,info->res_y);
+	input_abs_set_res(target_input_dev, ABS_MT_POSITION_Y,info->res_x);
+	input_abs_set_res(target_input_dev, ABS_MT_POSITION_X,info->res_y);
 
 
 }
