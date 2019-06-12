@@ -29,101 +29,24 @@ public class TouchpadActivity extends Activity {
 
     private int mCurrentFingerCount;
     private int mLastFingerCount = -1;
-    private static int tapCount;
 
     private SparseArray<PointF> mActivePoints;
-        private final Object mActivePointsLock = new Object();
+    private final Object mActivePointsLock = new Object();
 
-        private ConnectionReceiver mMouseConnectionReceiver = new ConnectionReceiver();
-        private boolean till = false;
-        Timer timer = new Timer();
-        Timer timerUp = new Timer();
+    private boolean till = false;
+    Timer timer = new Timer();
+    Timer timerUp = new Timer();
 
-        private class ConnectionReceiver extends BroadcastReceiver {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                assert action != null;
-                if (action.equals(ConnectionService.DISCONNECTED_INTENT) ||
-                        action.equals(ConnectionService.CONNECTION_LOST_INTENT)) {
-
-                    Intent i = new Intent(context, StartActivity.class);
-                    i.putExtra("ConnectionLost", true);
-                    startActivity(i);
-                }
-            }
-
-        }
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.touchpad_screen);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.touchpad_screen);
 
         mActivePoints = new SparseArray<PointF>();
         mCurrentFingerCount = 0;
         mLastFingerCount = -1;
-        tapCount = 0;
-
-        View v = findViewById(R.id.touchPad);
-
-        v.setOnTouchListener(new OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return touchpadOnTouch(event);
-            }
-        });
-
 
     }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (ConnectionService.mService == null) {
-            finish();
-        }
-        IntentFilter iff = new IntentFilter();
-        iff.addAction(ConnectionService.DISCONNECTED_INTENT);
-        iff.addAction(ConnectionService.CONNECTION_LOST_INTENT);
-        registerReceiver(mMouseConnectionReceiver, iff);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        unregisterReceiver(mMouseConnectionReceiver);
-    }
-
-//	@Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//    	MenuInflater inflater = getMenuInflater();
-//    	inflater.inflate(R.menu.chose_activity_menu, menu);
-//    	return true;
-//    }
-
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//    	Intent intent;
-//        switch (item.getItemId()) {
-//            case R.id.touchpadScreen:
-//                return true;
-//                /*
-//            case R.id.startScreen:
-//                intent = new Intent(this, StartActivity.class);
-//                startActivity(intent);
-//                return true;
-//                */
-//            case R.id.keyboardScreen:
-//            	intent = new Intent(this, KeyboardActivity.class);
-//            	startActivity(intent);
-//            	return true;
-//
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
 
     private boolean touchpadOnTouch(final MotionEvent event) {
 

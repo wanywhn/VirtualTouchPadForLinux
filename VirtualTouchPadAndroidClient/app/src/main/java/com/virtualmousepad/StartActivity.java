@@ -1,6 +1,7 @@
 package com.virtualmousepad;
 
 import android.app.Activity;
+import android.app.NativeActivity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,220 +13,211 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.virtualmousepad.PacketBuilder.PacketConfigBuilder;
 
+import java.io.IOException;
+import java.net.Socket;
+
 public class StartActivity extends Activity {
-	public static final String PREFERENCES_FILE = "VirtualMousePadAndroidClientSettings";
-	public static final String PREF_MOUSE_PORT = "mousePort";
-//	public static final String PREF_KEYBOARD_PORT = "keyboardPort";
-	public static final String PREF_SERVER_IP = "serverIp";
-	private MouseConnectionReceiver mMouseConnectionReceiver = new MouseConnectionReceiver();
-	private ProgressDialog mProgressDialog;
-	
-	private class MouseConnectionReceiver extends BroadcastReceiver {
+    public static final String PREFERENCES_FILE = "VirtualMousePadAndroidClientSettings";
+    public static final String PREF_MOUSE_PORT = "mousePort";
+    public static final String PREF_SERVER_IP = "serverIp";
+    private MouseConnectionReceiver mMouseConnectionReceiver = new MouseConnectionReceiver();
+    private ProgressDialog mProgressDialog;
 
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
+    private class MouseConnectionReceiver extends BroadcastReceiver {
 
-			assert action != null;
-			if (action.equals(ConnectionService.CONNECTING_INTENT)) {
-		    	setProgressBarIndeterminateVisibility(true);  	
-		    	mProgressDialog = ProgressDialog.show(StartActivity.this,
-						"Connecting", "Pease wait for the connection to establish");
-			} else {
-				if (ConnectionService.mService == null) {
-		    		findViewById(R.id.buttonMouseScreen).setEnabled(false);
-		    		findViewById(R.id.buttonConnect).setEnabled(true);
-		    		findViewById(R.id.buttonDisconnect).setEnabled(false);
-		    	}
-		    	else {
-					DisplayMetrics metrics=new DisplayMetrics();
-					getWindowManager().getDefaultDisplay().getMetrics(metrics);
-					PacketConfigBuilder builder=new PacketConfigBuilder();
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
 
-					builder.setConnect(true);
-					double resx=metrics.xdpi*0.03937;
-					double resy=metrics.ydpi*0.03937;
-					builder.setResX((int) (resx));
-					builder.setResY((int) (resy));
-					//INFO landscape
-					builder.setMaxY((int) (metrics.widthPixels/resx));
-					builder.setMaxX((int) (metrics.heightPixels/resy));
+            assert action != null;
+            if (action.equals(ConnectionService.CONNECTING_INTENT)) {
+                setProgressBarIndeterminateVisibility(true);
+                mProgressDialog = ProgressDialog.show(StartActivity.this,
+                        "Connecting", "Pease wait for the connection to establish");
+            } else {
+                if (ConnectionService.mService == null) {
+                    findViewById(R.id.buttonMouseScreen).setEnabled(false);
+                    findViewById(R.id.buttonConnect).setEnabled(true);
+                } else {
+                    DisplayMetrics metrics = new DisplayMetrics();
+                    getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                    PacketConfigBuilder builder = new PacketConfigBuilder();
 
-					ConnectionService.mService.sendMouseData(builder.getBytes());
+                    builder.setConnect(true);
+                    double resx = metrics.xdpi * 0.03937;
+                    double resy = metrics.ydpi * 0.03937;
+                    builder.setResX((int) (resx));
+                    builder.setResY((int) (resy));
+                    //INFO landscape
+                    builder.setMaxY((int) (metrics.widthPixels / resx));
+                    builder.setMaxX((int) (metrics.heightPixels / resy));
 
-		    		findViewById(R.id.buttonMouseScreen).setEnabled(true);
-		    		findViewById(R.id.buttonConnect).setEnabled(false);
-		    		findViewById(R.id.buttonDisconnect).setEnabled(true);
+                    ConnectionService.mService.sendMouseData(builder.getBytes());
+
+                    findViewById(R.id.buttonMouseScreen).setEnabled(true);
+                    findViewById(R.id.buttonConnect).setEnabled(false);
 
 
-		    	}
-				
-				TextView tv = (TextView) findViewById(R.id.textViewConnectionStatus);
-				if (action.equals(ConnectionService.CONNECTED_INTENT)) {
-					tv.setTextColor(Color.GREEN);
-					tv.setText("Connected");
-				} else if (action.equals(ConnectionService.DISCONNECTED_INTENT)) {
-					tv.setTextColor(Color.RED);
-					tv.setText("Disconnected");
-				} else if (action.equals(ConnectionService.CONNECTION_FAILED_INTENT)) {
-					Bundle b = intent.getExtras();
-					String m = "Connection failed!";
-					String s = null;
-					if (b != null) {
-						s = b.getString("ErrorText");
-					}
-					if (s != null) {
-						m = m + "\n" +s;
-					}
-					Toast.makeText(StartActivity.this, m, Toast.LENGTH_SHORT).show();
-				} else if (action.equals(ConnectionService.CONNECTION_LOST_INTENT)) {
-					Toast.makeText(StartActivity.this, "Connection lost", Toast.LENGTH_SHORT).show();
-				}
-				
-				if (mProgressDialog != null) {
-					setProgressBarIndeterminateVisibility(false);
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-			}
-		}
-	}
-	
+                }
+
+                TextView tv = (TextView) findViewById(R.id.textViewConnectionStatus);
+                if (action.equals(ConnectionService.CONNECTED_INTENT)) {
+                    tv.setTextColor(Color.GREEN);
+                    tv.setText("Connected");
+                } else if (action.equals(ConnectionService.DISCONNECTED_INTENT)) {
+                    tv.setTextColor(Color.RED);
+                    tv.setText("Disconnected");
+                } else if (action.equals(ConnectionService.CONNECTION_FAILED_INTENT)) {
+                    Bundle b = intent.getExtras();
+                    String m = "Connection failed!";
+                    String s = null;
+                    if (b != null) {
+                        s = b.getString("ErrorText");
+                    }
+                    if (s != null) {
+                        m = m + "\n" + s;
+                    }
+                    Toast.makeText(StartActivity.this, m, Toast.LENGTH_SHORT).show();
+                } else if (action.equals(ConnectionService.CONNECTION_LOST_INTENT)) {
+                    Toast.makeText(StartActivity.this, "Connection lost", Toast.LENGTH_SHORT).show();
+                }
+
+                if (mProgressDialog != null) {
+                    setProgressBarIndeterminateVisibility(false);
+                    mProgressDialog.dismiss();
+                    mProgressDialog = null;
+                }
+            }
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.start_screen);
-        
+
         boolean hasSettings = verifySettings();
-        
+
         Button button = (Button) findViewById(R.id.buttonSetupScreen);
-        button.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				buttonSetupScreenOnClick(v);
-			}
-		});
+        button.setOnClickListener(this::buttonSetupScreenOnClick);
 
         button = (Button) findViewById(R.id.buttonMouseScreen);
         button.setEnabled(hasSettings);
-        button.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				buttonMouseScreenOnClick(v);
-			}
-		});
+        button.setOnClickListener(this::buttonMouseScreenOnClick);
 
 
         button = (Button) findViewById(R.id.buttonConnect);
         button.setEnabled(hasSettings);
-        button.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				buttonConnectOnClick(v);
-			}
-		});
+        button.setOnClickListener(this::buttonConnectOnClick);
 
-        button = (Button) findViewById(R.id.buttonDisconnect);
-        button.setEnabled(hasSettings);
-        button.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				buttonDisconnectOnClick(v);
-			}
-		});
     }
-    
+
     @Override
-    public void onResume()
-    {
-    	super.onResume();
-    	boolean hasSettings = verifySettings();
-    	TextView tv = (TextView) findViewById(R.id.textViewConnectionStatus);
-    	if (ConnectionService.mService == null) {
-    		findViewById(R.id.buttonMouseScreen).setEnabled(false);
-    		findViewById(R.id.buttonConnect).setEnabled(hasSettings);
-    		findViewById(R.id.buttonDisconnect).setEnabled(false);
-    		tv.setText("Disconnected");
-    		tv.setTextColor(Color.RED);
-    	}
-    	else {
-    		findViewById(R.id.buttonMouseScreen).setEnabled(true);
-    		findViewById(R.id.buttonConnect).setEnabled(false);
-    		findViewById(R.id.buttonDisconnect).setEnabled(true);
-    		tv.setText("Connected");
-    		tv.setTextColor(Color.GREEN);
-    	}
-    	IntentFilter iff = new IntentFilter();
-    	iff.addAction(ConnectionService.CONNECTING_INTENT);
-    	iff.addAction(ConnectionService.CONNECTED_INTENT);
-    	iff.addAction(ConnectionService.DISCONNECTED_INTENT);
-    	iff.addAction(ConnectionService.CONNECTION_FAILED_INTENT);
-    	iff.addAction(ConnectionService.CONNECTION_LOST_INTENT);
-    	registerReceiver(mMouseConnectionReceiver, iff);
+    public void onResume() {
+        super.onResume();
+        boolean hasSettings = verifySettings();
+        TextView tv = (TextView) findViewById(R.id.textViewConnectionStatus);
+        if (ConnectionService.mService == null) {
+//            findViewById(R.id.buttonMouseScreen).setEnabled(false);
+//            findViewById(R.id.buttonConnect).setEnabled(hasSettings);
+//            tv.setText("Disconnected");
+//            tv.setTextColor(Color.RED);
+        } else {
+//            findViewById(R.id.buttonMouseScreen).setEnabled(true);
+//            findViewById(R.id.buttonConnect).setEnabled(false);
+//            tv.setText("Connected");
+//            tv.setTextColor(Color.GREEN);
+        }
+        IntentFilter iff = new IntentFilter();
+        iff.addAction(ConnectionService.CONNECTING_INTENT);
+        iff.addAction(ConnectionService.CONNECTED_INTENT);
+        iff.addAction(ConnectionService.DISCONNECTED_INTENT);
+        iff.addAction(ConnectionService.CONNECTION_FAILED_INTENT);
+        iff.addAction(ConnectionService.CONNECTION_LOST_INTENT);
+        registerReceiver(mMouseConnectionReceiver, iff);
 
 
-    	Intent intent=getIntent();
-    	if (intent==null){
-    		return ;
-		}
-	    	Bundle b =intent.getExtras();
-	    	if (b != null) {
-	    		if (b.getBoolean("ConnectionLost")) {
-	    			Toast.makeText(StartActivity.this, "Connection lost!", Toast.LENGTH_SHORT).show();
-	    		}
-	    	}
-	    	setIntent(null);
+        Intent intent = getIntent();
+        if (intent == null) {
+            return;
+        }
+        Bundle b = intent.getExtras();
+        if (b != null) {
+            if (b.getBoolean("ConnectionLost")) {
+                Toast.makeText(StartActivity.this, "Connection lost!", Toast.LENGTH_SHORT).show();
+            }
+        }
+        setIntent(null);
     }
-    
+
     @Override
-    public void onPause()
-    {
-    	super.onPause();
-    	unregisterReceiver(mMouseConnectionReceiver);
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(mMouseConnectionReceiver);
     }
-    
-    private void buttonSetupScreenOnClick(View v)
-    {
-    	Intent intent = new Intent(this, SetupConnectionActivity.class);
-		startActivity(intent);
-    }
-    
-    private void buttonMouseScreenOnClick(View v)
-    {
-    	Intent intent = new Intent(this, TouchpadActivity.class);
-		startActivity(intent);
-    }
-    
 
-    private void buttonConnectOnClick(View v)
-    {
-    	Intent intent = new Intent(this, ConnectionService.class);
-    	startService(intent);
+    private void buttonSetupScreenOnClick(View v) {
+        Intent intent = new Intent(this, SetupConnectionActivity.class);
+        startActivity(intent);
     }
-    
-    private void buttonDisconnectOnClick(View v)
-    {
-        PacketConfigBuilder builder=new PacketConfigBuilder();
-        builder.setConnect(false);
-		ConnectionService.mService.sendMouseData(builder.getBytes());
-    	stopService(new Intent(this, ConnectionService.class));
+
+    private void buttonMouseScreenOnClick(View v) {
+        SharedPreferences preferences = getSharedPreferences(StartActivity.PREFERENCES_FILE, 0);
+        int mousePort = preferences.getInt(StartActivity.PREF_MOUSE_PORT, -1);
+        String serverIp = preferences.getString(StartActivity.PREF_SERVER_IP, null);
+        Intent intent = new Intent(this, NativeActivity.class);
+        intent.putExtra("IP", serverIp);
+        intent.putExtra("PORT", mousePort);
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        intent.putExtra("XDPI",metrics.xdpi);
+        intent.putExtra("YDPI",metrics.ydpi);
+        intent.putExtra("X",metrics.widthPixels);
+        intent.putExtra("Y",metrics.heightPixels);
+        startActivity(intent);
     }
-    
-    private boolean verifySettings()
-    {
-    	SharedPreferences settings = getSharedPreferences(PREFERENCES_FILE, 0);
-    	if (!settings.contains(PREF_MOUSE_PORT))
-    		return false;
-		return settings.contains(PREF_SERVER_IP);
-	}
+
+
+    private void buttonConnectOnClick(View v) {
+
+        SharedPreferences preferences = getSharedPreferences(StartActivity.PREFERENCES_FILE, 0);
+        int mousePort = preferences.getInt(StartActivity.PREF_MOUSE_PORT, -1);
+        String serverIp = preferences.getString(StartActivity.PREF_SERVER_IP, null);
+        Thread t = new Thread(() -> {
+
+            Socket socket = null;
+            try {
+                socket = new Socket(serverIp, mousePort);
+                if (socket.isConnected()) {
+                    System.out.println("Connect success");
+                    socket.close();
+                } else {
+                    System.out.println("connect failed");
+
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        t.start();
+
+    }
+
+
+    private boolean verifySettings() {
+        SharedPreferences settings = getSharedPreferences(PREFERENCES_FILE, 0);
+        if (!settings.contains(PREF_MOUSE_PORT))
+            return false;
+        return settings.contains(PREF_SERVER_IP);
+    }
 }

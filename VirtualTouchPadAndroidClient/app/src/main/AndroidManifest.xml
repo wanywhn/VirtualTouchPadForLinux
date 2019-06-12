@@ -32,11 +32,15 @@
         </activity>
         
         <activity
-            android:name="com.virtualmousepad.TouchpadActivity"
+            android:name="android.app.NativeActivity"
             android:noHistory="true"
             android:screenOrientation="sensorLandscape"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            android:exported="false">
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            <!--android:exported="false"-->
+            <!--&gt;-->
+
+            <meta-data android:name="android.app.lib_name"
+                android:value="native-activity"/>
         </activity>
 
     </application>

@@ -45,49 +45,43 @@ public class ConnectionService extends Service {
 
         sendConnectionBroadcast(ConnectionService.CONNECTING_INTENT);
 
-        new Thread(new Runnable() {
+        new Thread(() -> {
 
-            @Override
-            public void run() {
-
-                // MOUSE THREAD
-                HandlerThread thread = new HandlerThread("MouseConnectionServiceHandlerThread", Process.THREAD_PRIORITY_BACKGROUND);
-                thread.start();
-                mMouseServiceLooper = thread.getLooper();
-                mMouseServiceHandler = new Handler(mMouseServiceLooper);
-                // END MOUSE THREAD
+            // MOUSE THREAD
+            HandlerThread thread = new HandlerThread("MouseConnectionServiceHandlerThread", Process.THREAD_PRIORITY_BACKGROUND);
+            thread.start();
+            mMouseServiceLooper = thread.getLooper();
+            mMouseServiceHandler = new Handler(mMouseServiceLooper);
+            // END MOUSE THREAD
 
 
-                // READ SETTINGS
-                settings = getSharedPreferences(StartActivity.PREFERENCES_FILE, 0);
-                int mousePort = settings.getInt(StartActivity.PREF_MOUSE_PORT, -1);
-                String serverIp = settings.getString(StartActivity.PREF_SERVER_IP, null);
-                // END READ SETTINGS
+            // READ SETTINGS
+            settings = getSharedPreferences(StartActivity.PREFERENCES_FILE, 0);
+            int mousePort = settings.getInt(StartActivity.PREF_MOUSE_PORT, -1);
+            String serverIp = settings.getString(StartActivity.PREF_SERVER_IP, null);
+            // END READ SETTINGS
 
-                // SETUP CONNECTION HANDLERS WITH THREADS
-                if (mousePort == -1 || serverIp == null) {
-                    stopSelf();
-                    sendConnectionBroadcast(ConnectionService.CONNECTION_FAILED_INTENT, "IP or PORT ERROR");
+            // SETUP CONNECTION HANDLERS WITH THREADS
+            if (mousePort == -1 || serverIp == null) {
+                stopSelf();
+                sendConnectionBroadcast(ConnectionService.CONNECTION_FAILED_INTENT, "IP or PORT ERROR");
 
-                }
-                mMouseConnectionHandler = new MouseConnectionHandler(serverIp, mousePort);
-                mMouseServiceHandler.post(new Runnable() {
-                    public void run() {
-                        try {
-                            if (mMouseConnectionHandler.Connect()) {
-                                mIsMouseConnected = true;
-                                hasConnectedSendBroadcast();
-                            }
-                        } catch (Exception e) {
-                            Log.e("ConnectionService",  e.toString());
-                            sendConnectionBroadcast(ConnectionService.CONNECTION_FAILED_INTENT, e.getMessage());
-                            stopSelf();
-                        }
-                    }
-                });
-
-                // END SETUP CONNECTION HANDLERS WITH THREADS
             }
+            mMouseConnectionHandler = new MouseConnectionHandler(serverIp, mousePort);
+            mMouseServiceHandler.post(() -> {
+                try {
+                    if (mMouseConnectionHandler.Connect()) {
+                        mIsMouseConnected = true;
+                        hasConnectedSendBroadcast();
+                    }
+                } catch (Exception e) {
+                    Log.e("ConnectionService",  e.toString());
+                    sendConnectionBroadcast(ConnectionService.CONNECTION_FAILED_INTENT, e.getMessage());
+                    stopSelf();
+                }
+            });
+
+            // END SETUP CONNECTION HANDLERS WITH THREADS
         }).run();
     }
 
