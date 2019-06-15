@@ -21,122 +21,111 @@ bool touchPad::touchpadOnTouch(AInputEvent *event) {
 
 
     auto action = AMotionEvent_getAction(event);
-//    int pointerIdx = event.getActionIndex();
-//            auto pointerId=AMotionEvent_getPointerId(event,pointerIdx);
-//    final int pointerId = event.getPointerId(pointerIdx);
-    for (auto i = 0; i != AMotionEvent_getPointerCount(event); ++i) {
-        auto pointerId = AMotionEvent_getPointerId(event, i);
+
+    switch (action & AMOTION_EVENT_ACTION_MASK) {
+        //TODO ??
+        case AMOTION_EVENT_ACTION_DOWN:
+        case AMOTION_EVENT_ACTION_POINTER_DOWN: {
+            auto f = new PointF();
+            auto idx = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)>>AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+            f->x = AMotionEvent_getRawX(event, idx);
+            f->y = AMotionEvent_getRawY(event, idx);
+            auto pointerId = AMotionEvent_getPointerId(event, idx);
+//            LOGI("ACTION_POINTER_DOWN,FingerID:%d,X:%f,Y:%f\n", pointerId, f->x, f->y);
+            mActivatePoints[pointerId] = f;
+
+            break;
+        }
+
+        case AMOTION_EVENT_ACTION_MOVE: {
+
+            if (mLastFingerCount != mActivatePoints.size()) {
+//                synchronized (mActivePointsLock) {
+                SendStatusPacket();
+                SendHeadPacket(event);
+//                }
+                mLastFingerCount = mActivatePoints.size();
+            }
 
 
-        switch (action) {
-            //TODO ??
-            case AMOTION_EVENT_ACTION_DOWN:
-            case AMOTION_EVENT_ACTION_POINTER_DOWN: {
-                auto f = new PointF();
-                f->x = AMotionEvent_getRawX(event, i);
-                f->y = AMotionEvent_getRawY(event, i);
-//                LOGI("ACTION_POINTER_DOWN,FingerID:%d,X:%f,Y:%f\n", pointerId, f->x, f->y);
-//            mActivePoints.emplace_back(pointerId, f);
-//                mActivatePoints.insert({pointerId, f});
-                mActivatePoints.emplace(pointerId,f);
-//                ++mCurrentFingerCount;
-
-//            if (timer != null) {
-//                timer.cancel();
-//                timer = null;
-//            }
-//            timer = new Timer();
-//            timer.schedule(new TimerTask() {
-//        @Override
-//        public void run() {
-//            till = true;
-//        }
-//    }, 60);
-//            till = false;
-
+            if (mActivatePoints.size() == 1) {
+                SendHeadPacketForOneFingerWhenMotion(event);
                 break;
             }
 
-            case AMOTION_EVENT_ACTION_MOVE: {
 //            if (!till) {
 //                break;
 //            }
-                if (mLastFingerCount !=mActivatePoints.size()) {
-//                synchronized (mActivePointsLock) {
-                    SendStatusPacket();
-                    SendHeadPacket(event);
-//                }
-                    mLastFingerCount =mActivatePoints.size();
-                }
+            auto motionBuilder = new PacketMotionBuilder();
+            bool clearFlag = true;
 
+            int hiscount = AMotionEvent_getHistorySize(event);
+            for (int hidx = 0; hidx != hiscount; ++hidx) {
 
-                if (mActivatePoints.size()== 1) {
-                    SendHeadPacketForOneFingerWhenMotion(event);
-                    break;
-                }
-                //TODO send move;
-//            synchronized (mActivePointsLock) {
-                auto motionBuilder = new PacketMotionBuilder();
-                bool clearFlag = true;
-//                assert(AMotionEvent_getPointerCount(event) == mActivatePoints.size());
-                int hiscount = AMotionEvent_getHistorySize(event);
-                for (int hidx = 0; hidx != hiscount; ++hidx) {
-                    for (int idx = 0; idx <mActivatePoints.size(); ++idx) {
-//                auto id = mActivePoints.at(idx).first;
-//                int pointer = event.findPointerIndex(id);
-//                if (pointer < 0) {
-//                    continue;
-//                }
-                        auto pid = AMotionEvent_getPointerId(event, idx);
-                        auto deltX = AMotionEvent_getHistoricalRawX(event, idx, hidx) -
-                                     mActivatePoints.at(pid)->x;
-                        auto deltY = AMotionEvent_getHistoricalRawY(event, idx, hidx) -
-                                     mActivatePoints.at(pid)->y;
+                for (auto idx = 0; idx != AMotionEvent_getPointerCount(event); ++idx) {
+                    auto pointerId = AMotionEvent_getPointerId(event, idx);
+                    if(mActivatePoints.find(pointerId)==mActivatePoints.end()){
+                        continue;
+                    }
+//                        auto pid = AMotionEvent_getPointerId(event, idx);
+                    auto deltX = AMotionEvent_getHistoricalRawX(event, idx, hidx) -
+                                 mActivatePoints.at(pointerId)->x;
+                    auto deltY = AMotionEvent_getHistoricalRawY(event, idx, hidx) -
+                                 mActivatePoints.at(pointerId)->y;
 //                int deltX = (int) (event.getHistoricalX(pointer, hidx) - mActivePoints.valueAt(idx).x);
 //                int deltY = (int) (event.getHistoricalY(pointer, hidx) - mActivePoints.valueAt(idx).y);
-                        if (deltX == 0 && deltY == 0) {
-                            continue;
-                        }
-                        mActivatePoints.at(pid)->x += deltX;
-                        mActivatePoints.at(pid)->y += deltY;
+                    if (deltX == 0 && deltY == 0) {
+                        continue;
+                    }
+                    mActivatePoints.at(pointerId)->x += deltX;
+                    mActivatePoints.at(pointerId)->y += deltY;
 //                mActivePoints.valueAt(idx).x = event.getHistoricalX(pointer, hidx);
 //                mActivePoints.valueAt(idx).y = event.getHistoricalY(pointer, hidx);
-                        if (clearFlag) {
-                            clearFlag = false;
-                            motionBuilder->clear();
-                            motionBuilder->setId1(pid);
-                            motionBuilder->setX1(deltX);
-                            motionBuilder->setY1(deltY);
-                            LOGI("ACTION_MOVE/MOTION,FingerID:%d,DELT_X1:%f,DELT_Y1:%f\n", pid,
-                                 deltX, deltY);
+                    if (clearFlag) {
+                        clearFlag = false;
+                        motionBuilder->clear();
+                        motionBuilder->setId1(pointerId);
+                        motionBuilder->setX1(deltX);
+                        motionBuilder->setY1(deltY);
+                        LOGI("ACTION_MOVE/MOTION,FingerID:%d,DELT_X1:%f,DELT_Y1:%f\n", pointerId,
+                             deltX, deltY);
 
-                        } else {
-                            clearFlag = true;
-                            motionBuilder->setId2(pid);
-                            motionBuilder->setX2(deltX);
-                            motionBuilder->setY2(deltY);
-                            sendData(motionBuilder->getBytes(), 6);
-                            LOGI("ACTION_MOVE/MOTION,FingerID:%d,DELT_X2:%f,DELT_Y2:%f\n", pid,
-                                 deltX, deltY);
-                        }
-
+                    } else {
+                        clearFlag = true;
+                        motionBuilder->setId2(pointerId);
+                        motionBuilder->setX2(deltX);
+                        motionBuilder->setY2(deltY);
+                        sendData(motionBuilder->getBytes(), 6);
+                        LOGI("ACTION_MOVE/MOTION,FingerID:%d,DELT_X2:%f,DELT_Y2:%f\n", pointerId,
+                             deltX, deltY);
                     }
+
                 }
-                break;
             }
+            break;
+        }
 //    }
 
 
-            case AMOTION_EVENT_ACTION_UP:
-            case AMOTION_EVENT_ACTION_POINTER_UP: {
+        case AMOTION_EVENT_ACTION_UP:
+        case AMOTION_EVENT_ACTION_POINTER_UP: {
 //            synchronized (mActivePointsLock) {
 //                LOGI("ACTION_POINTER_UP,FingerID:%d\n", pointerId);
-                mActivatePoints.erase(pointerId);
-                if (mActivatePoints.empty()) {
-                    mLastFingerCount = -1;
-                }
-                SendStatusPacket();
-                SendHeadPacket(event);
+            auto ttcnt=AMotionEvent_getPointerCount(event);
+            auto idx= AMotionEvent_getPointerId(event, (action &
+                                                              AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)>>AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT);
+            auto pointerId=AMotionEvent_getPointerId(event,idx);
+            mActivatePoints.erase(pointerId);
+
+            if(ttcnt==1){
+                mActivatePoints.clear();
+            }
+
+            if (mActivatePoints.empty()) {
+                mLastFingerCount = -1;
+            }
+            SendStatusPacket();
+            SendHeadPacket(event);
 //    }
 //                if (timerUp != null) {
 //                    timerUp.cancel();
@@ -152,9 +141,13 @@ bool touchPad::touchpadOnTouch(AInputEvent *event) {
 //                    }
 //                }, 30);
 
-                break;
-            }
+            break;
         }
+        default: {
+//                LOGI("unhanded case:pointer id:%d,action=%d\n",pointerId,action);
+
+            break;
+        };
     }
 
     return true;
@@ -168,6 +161,9 @@ void touchPad::SendHeadPacketForOneFingerWhenMotion(AInputEvent *event) {
         auto headBUilder = new PacketHeadBUilder();
         //!!FIXME
         auto id = AMotionEvent_getPointerId(event, 0);
+        if(mActivatePoints.find(id)==mActivatePoints.end()){
+            continue;
+        }
         auto currentx = AMotionEvent_getHistoricalRawX(event, 0, i);
         auto currenty = AMotionEvent_getHistoricalRawY(event, 0, i);
 //        float currenty = event.getHistoricalY(i);
@@ -181,7 +177,7 @@ void touchPad::SendHeadPacketForOneFingerWhenMotion(AInputEvent *event) {
         headBUilder->setPressure(2);
         headBUilder->setX(currentx);
         headBUilder->setY(currenty);
-        LOGI("SingleHeadPacket: X:%f,Y:%f\n", currentx, currenty);
+//        LOGI("SingleHeadPacket: X:%f,Y:%f\n", currentx, currenty);
         sendData(headBUilder->getBytes(), 6);
     }
 
@@ -190,8 +186,9 @@ void touchPad::SendHeadPacketForOneFingerWhenMotion(AInputEvent *event) {
 void touchPad::SendHeadPacket(AInputEvent *event) {
     auto headBUilder = new PacketHeadBUilder();
 
-    for (int idx = 0; idx <mActivatePoints.size(); ++idx) {
-        if (idx >= AMotionEvent_getPointerCount(event) || idx >=mActivatePoints.size()) {
+    //TODO cnt should use the number in event
+    for (int idx = 0; idx < mActivatePoints.size(); ++idx) {
+        if (idx >= AMotionEvent_getPointerCount(event) || idx >= mActivatePoints.size()) {
             continue;
         }
         headBUilder->clear();
@@ -200,16 +197,19 @@ void touchPad::SendHeadPacket(AInputEvent *event) {
         if (pid < 0) {
             continue;
         }
+        if(mActivatePoints.find(pid)==mActivatePoints.end()){
+            continue;
+        }
         //!!FIXME
         headBUilder->setWidth((short) pid);
         headBUilder->setPressure(2);
-        auto x = mActivatePoints.at(pid)->x;
-        auto y = mActivatePoints.at(pid)->y;
+//        auto x = mActivatePoints.at(pid)->x;
+//        auto y = mActivatePoints.at(pid)->y;
         headBUilder->setX(mActivatePoints.at(pid)->x);
         headBUilder->setY(mActivatePoints.at(pid)->y);
         headBUilder->setId(pid);
         sendData(headBUilder->getBytes(), 6);
-        LOGI("ACTION_MOVE/HEAD:FingerID:%d,X:%f,Y:%f\n", pid, x, y);
+//        LOGI("ACTION_MOVE/HEAD:FingerID:%d,X:%f,Y:%f\n", pid, x, y);
 
     }
 }
@@ -223,8 +223,8 @@ void touchPad::SendStatusPacket() {
         //FIXME id should be 0-4
         //TODO palm???
         statusBuilder->setFingerTouched(mActivatePoint.first);
+//        LOGI("send status packet:activate: %d\n", mActivatePoint.first);
     }
-    LOGI("send status packet:\n");
     sendData(statusBuilder->getBytes(), 6);
 }
 
@@ -246,6 +246,6 @@ bool touchPad::connectTo(const char *servaddr, int port) {
 }
 
 bool touchPad::sendData(const unsigned char *d, size_t size) {
-    assert(write(sockfd, d, size)==size);
+    assert(write(sockfd, d, size) == size);
     return true;
 }

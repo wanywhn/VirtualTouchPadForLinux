@@ -49,15 +49,9 @@ private:
 
 private:
 
-//    int mCurrentFingerCount;
     int mLastFingerCount = -1;
-//    std::vector<std::pair<int32_t, PointF *>> mActivePoints;
     std::unordered_map<int32_t, PointF *> mActivatePoints;
     int sockfd;
-//bool till { false};
-//    Timer timer = new Timer();
-//    Timer timerUp = new Timer();
-//final Object mActivePointsLock = new Object();
 
 };
 
