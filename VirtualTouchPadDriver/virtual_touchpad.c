@@ -151,6 +151,7 @@ static void process_packet_head_v4(struct vtp_dev *vtp_dev1) {
 
 	etd->mt[id].x = ((packet[1] & 0x0f) << 8) | packet[2];
 	etd->mt[id].y = (((packet[4] & 0x0f) << 8) | packet[5]);
+	//
 	// if (fingerCount <= 1) {
 	//     if (isTouchScreen) {
 	//         //first single touch after multi touch ,we should let mouse pos continue
@@ -321,7 +322,8 @@ void configure_device(struct vtp_dev *vtp_dev1){
 	if(info.connect){
 		inited=true;
 	}else{
-		inited=false;
+		//TODO sometime bit flip?
+		//inited=false;
 		return ;
 
 	}

@@ -9,7 +9,6 @@
 #include <openssl/err.h>
 #include <netinet/tcp.h>
 
-#include "messageTypes.h"
 #include "MouseHandler.h"
 
 class ClientHandler {
