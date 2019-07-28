@@ -37,7 +37,7 @@ public class TouchpadActivity extends Activity {
         private ConnectionReceiver mMouseConnectionReceiver = new ConnectionReceiver();
         private boolean till = false;
         Timer timer = new Timer();
-        Timer timerUp = new Timer();
+//        Timer timerUp = new Timer();
 
         private class ConnectionReceiver extends BroadcastReceiver {
             @Override
@@ -152,7 +152,7 @@ public class TouchpadActivity extends Activity {
                     public void run() {
                         till = true;
                     }
-                }, 60);
+                }, 30);
                 till = false;
 
 
@@ -243,18 +243,18 @@ public class TouchpadActivity extends Activity {
                         mLastFingerCount = -1;
                     }
                 }
-                if (timerUp != null) {
-                    timerUp.cancel();
-                    timerUp = null;
-                }
-                timerUp = new Timer();
-                timerUp.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
+//                if (timerUp != null) {
+//                    timerUp.cancel();
+//                    timerUp = null;
+//                }
+//                timerUp = new Timer();
+//                timerUp.schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
                         SendStatusPacket();
                         SendHeadPacket(event);
-                    }
-                }, 30);
+//                    }
+//                }, 30);
 
                 break;
         }

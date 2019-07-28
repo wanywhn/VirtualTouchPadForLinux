@@ -3,7 +3,7 @@ KERNEL_MODULES :=/lib/modules/$(KERNEL_VERSION)/build
 obj-m += virtual_touchpad.o
 
 dkms_name:="virtual-touchpad"
-dkms_version:="1.1.0"
+dkms_version:="1.1"
 DIR:=`pwd`
 
 
@@ -34,7 +34,7 @@ dkms:
 		sudo dkms build $(dkms_name)/$(dkms_version); \
 	fi
 	#mkdeb
-	sudo dkms mkdeb -m $(dkms_name) -v $(dkms_version) --source-only
+	sudo dkms mkdeb -m $(dkms_name) -v $(dkms_version)  --source-only
 
 dkms_clean:
 	# if dkms bindings exist, remove them
