@@ -139,7 +139,7 @@ static int engine_init_display(struct engine *engine) {
  * Just the current frame in the display.
  */
 static void engine_draw_frame(struct engine *engine) {
-    if (engine->display == NULL) {
+    if (engine->display == nullptr) {
         // No display.
         return;
     }
@@ -176,7 +176,7 @@ static void engine_term_display(struct engine *engine) {
  * Process the next input event.
  */
 static int32_t engine_handle_input(struct android_app *app, AInputEvent *event) {
-    struct engine *engine = (struct engine *) app->userData;
+    auto *engine = (struct engine *) app->userData;
     if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
 //        engine->animating = 1;
         engine->state.x = AMotionEvent_getX(event, 0);
@@ -193,7 +193,7 @@ static int32_t engine_handle_input(struct android_app *app, AInputEvent *event) 
  * Process the next main command.
  */
 static void engine_handle_cmd(struct android_app *app, int32_t cmd) {
-    struct engine *engine = (struct engine *) app->userData;
+    auto *engine = (struct engine *) app->userData;
     switch (cmd) {
         case APP_CMD_SAVE_STATE:
             // The system has asked us to save our current state.  Do so.
@@ -203,7 +203,7 @@ static void engine_handle_cmd(struct android_app *app, int32_t cmd) {
             break;
         case APP_CMD_INIT_WINDOW:
             // The window is being shown, get it ready.
-            if (engine->app->window != NULL) {
+            if (engine->app->window != nullptr) {
                 engine_init_display(engine);
                 engine_draw_frame(engine);
             }
@@ -243,7 +243,7 @@ void android_main(struct android_app *state) {
     jmethodID gseid = env->GetMethodID(icl, "getStringExtra",
                                        "(Ljava/lang/String;)Ljava/lang/String;");
 
-    jstring jsParam1 = static_cast<jstring>(env->CallObjectMethod(intent, gseid,
+    auto jsParam1 = static_cast<jstring>(env->CallObjectMethod(intent, gseid,
                                                                   env->NewStringUTF("IP")));
     const char *Param1 = env->GetStringUTFChars(jsParam1, 0);
 //When done with it, or when you've made a copy
@@ -282,14 +282,14 @@ void android_main(struct android_app *state) {
 
     env->ReleaseStringUTFChars(jsParam1, Param1);
 
-    if (state->savedState != NULL) {
+    if (state->savedState != nullptr) {
         // We are starting with a previous saved state; restore from it.
         engine.state = *(struct saved_state *) state->savedState;
     }
 
     // loop waiting for stuff to do.
 
-    while (1) {
+    while (true) {
         // Read all pending events.
         int ident;
         int events;
@@ -299,11 +299,11 @@ void android_main(struct android_app *state) {
         // If animating, we loop until all events are read, then continue
         // to draw the next frame of animation.
 //        while ((ident=ALooper_pollAll(engine.animating ? 0 : -1, NULL, &events,
-        while ((ident = ALooper_pollAll(-1, NULL, &events,
+        while ((ident = ALooper_pollAll(-1, nullptr, &events,
                                         (void **) &source)) >= 0) {
 
             // Process this event.
-            if (source != NULL) {
+            if (source != nullptr) {
                 source->process(state, source);
             }
 

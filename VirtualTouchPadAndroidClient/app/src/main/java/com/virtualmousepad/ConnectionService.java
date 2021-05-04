@@ -8,10 +8,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
-import android.util.DisplayMetrics;
 import android.util.Log;
-
-import com.virtualmousepad.PacketBuilder.PacketConfigBuilder;
 
 public class ConnectionService extends Service {
 

@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/VirtualTouchPadAndroidClient.iml" filepath="$PROJECT_DIR$/VirtualTouchPadAndroidClient.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/VirtualTouchPadAndroidClient.iml" filepath="$PROJECT_DIR$/.idea/VirtualTouchPadAndroidClient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/VirtualTouchPadAndroidClient.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/VirtualTouchPadAndroidClient.app.iml" />
     </modules>
   </component>
 </project>

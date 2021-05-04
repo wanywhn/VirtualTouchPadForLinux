@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <android/log.h>
 #include <unistd.h>
+#include <cassert>
 #include "touchPad.h"
 #include "PacketBuilder/PacketMotionBuilder.h"
 

@@ -42,7 +42,7 @@ public class TouchpadActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.touchpad_screen);
 
-        mActivePoints = new SparseArray<PointF>();
+        mActivePoints = new SparseArray<>();
         mCurrentFingerCount = 0;
         mLastFingerCount = -1;
 

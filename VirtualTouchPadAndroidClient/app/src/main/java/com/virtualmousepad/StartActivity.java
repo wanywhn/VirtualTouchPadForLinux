@@ -26,7 +26,7 @@ public class StartActivity extends Activity {
     public static final String PREFERENCES_FILE = "VirtualMousePadAndroidClientSettings";
     public static final String PREF_MOUSE_PORT = "mousePort";
     public static final String PREF_SERVER_IP = "serverIp";
-    private MouseConnectionReceiver mMouseConnectionReceiver = new MouseConnectionReceiver();
+    private final MouseConnectionReceiver mMouseConnectionReceiver = new MouseConnectionReceiver();
     private ProgressDialog mProgressDialog;
 
     private class MouseConnectionReceiver extends BroadcastReceiver {
@@ -67,25 +67,30 @@ public class StartActivity extends Activity {
                 }
 
                 TextView tv = (TextView) findViewById(R.id.textViewConnectionStatus);
-                if (action.equals(ConnectionService.CONNECTED_INTENT)) {
-                    tv.setTextColor(Color.GREEN);
-                    tv.setText("Connected");
-                } else if (action.equals(ConnectionService.DISCONNECTED_INTENT)) {
-                    tv.setTextColor(Color.RED);
-                    tv.setText("Disconnected");
-                } else if (action.equals(ConnectionService.CONNECTION_FAILED_INTENT)) {
-                    Bundle b = intent.getExtras();
-                    String m = "Connection failed!";
-                    String s = null;
-                    if (b != null) {
-                        s = b.getString("ErrorText");
-                    }
-                    if (s != null) {
-                        m = m + "\n" + s;
-                    }
-                    Toast.makeText(StartActivity.this, m, Toast.LENGTH_SHORT).show();
-                } else if (action.equals(ConnectionService.CONNECTION_LOST_INTENT)) {
-                    Toast.makeText(StartActivity.this, "Connection lost", Toast.LENGTH_SHORT).show();
+                switch (action) {
+                    case ConnectionService.CONNECTED_INTENT:
+                        tv.setTextColor(Color.GREEN);
+                        tv.setText("Connected");
+                        break;
+                    case ConnectionService.DISCONNECTED_INTENT:
+                        tv.setTextColor(Color.RED);
+                        tv.setText("Disconnected");
+                        break;
+                    case ConnectionService.CONNECTION_FAILED_INTENT:
+                        Bundle b = intent.getExtras();
+                        String m = "Connection failed!";
+                        String s = null;
+                        if (b != null) {
+                            s = b.getString("ErrorText");
+                        }
+                        if (s != null) {
+                            m = m + "\n" + s;
+                        }
+                        Toast.makeText(StartActivity.this, m, Toast.LENGTH_SHORT).show();
+                        break;
+                    case ConnectionService.CONNECTION_LOST_INTENT:
+                        Toast.makeText(StartActivity.this, "Connection lost", Toast.LENGTH_SHORT).show();
+                        break;
                 }
 
                 if (mProgressDialog != null) {
