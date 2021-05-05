@@ -17,7 +17,8 @@
 #include <linux/spinlock.h>
 
 #include "virtual_touchpad.h"
-
+#include <linux/err.h>
+#include <linux/input.h>
 //vtp=virtual touch pad
 #ifndef vtp_MAJOR
 #define vtp_MAJOR 60

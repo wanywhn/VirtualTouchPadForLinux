@@ -1,6 +1,7 @@
 #include "MouseHandler.h"
 #include <unistd.h>
 #include <MouseHandler.h>
+#include <sys/sysmacros.h>
 
 MouseHandler::MouseHandler(const char* mouseFilePathArg, class Logger *loggerArg) {
 	mouseFd = 0;

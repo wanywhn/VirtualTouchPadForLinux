@@ -291,7 +291,6 @@ bool InputServer::daemonize() {
 bool InputServer::readySocket(int *listeningSocket, struct sockaddr_in *serverAddress, int listeningPort) {
     char tmp[128];
     int *optval = new int(1);
-    int flags;
 
     *listeningSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (*listeningSocket == -1) {

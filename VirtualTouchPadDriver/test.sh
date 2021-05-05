@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pkill vtp_server
+pkill vtp-server
 rmmod virtual_touchpad
 insmod ./virtual_touchpad.ko
-vtp_server&
+./vtp-server&
