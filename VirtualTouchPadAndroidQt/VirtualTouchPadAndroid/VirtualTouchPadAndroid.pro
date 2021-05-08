@@ -25,7 +25,31 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        widget.cpp
+        startscreen.cpp \
+        touchscreen.cpp \
+        touchPad.cpp
 
 HEADERS += \
-        widget.h
+    startscreen.h \
+    touchscreen.h \
+    touchPad.h \
+    PacketBuilder/PacketConfigBuilder.h \
+    PacketBuilder/PacketHeadBuilder.h \
+    PacketBuilder/PacketMotionBuilder.h \
+    PacketBuilder/PacketStatusBuilder.h
+android: include(/home/tender/Android/Sdk/android_openssl/openssl.pri)
+
+DISTFILES += \
+    android/AndroidManifest.xml \
+    android/build.gradle \
+    android/gradle.properties \
+    android/gradle/wrapper/gradle-wrapper.jar \
+    android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradlew \
+    android/gradlew.bat \
+    android/res/values/libs.xml
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
+FORMS += \
+    startscreen.ui
