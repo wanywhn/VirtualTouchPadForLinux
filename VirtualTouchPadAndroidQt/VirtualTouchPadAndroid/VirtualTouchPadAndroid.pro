@@ -37,7 +37,7 @@ HEADERS += \
     PacketBuilder/PacketHeadBuilder.h \
     PacketBuilder/PacketMotionBuilder.h \
     PacketBuilder/PacketStatusBuilder.h
-android: include(/home/tender/Android/Sdk/android_openssl/openssl.pri)
+android: include(/home/y9000x/Android/Sdk/android_openssl/openssl.pri)
 
 DISTFILES += \
     android/AndroidManifest.xml \

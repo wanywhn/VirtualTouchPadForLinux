@@ -1,0 +1,28 @@
+{
+  "buildFiles": [
+    "/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/src/main/cpp/CMakeLists.txt",
+    "/home/tender/Android/Sdk/ndk/22.1.7171670/build/cmake/android.toolchain.cmake",
+    "/home/tender/Android/Sdk/ndk/22.1.7171670/build/cmake/platforms.cmake",
+    "/home/tender/Android/Sdk/ndk/22.1.7171670/build/cmake/compiler_id.cmake"
+  ],
+  "cleanCommands": [
+    "/home/tender/Android/Sdk/cmake/3.10.2.4988404/bin/ninja -C \"/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/debug/x86\" clean"
+  ],
+  "buildTargetsCommand": "/home/tender/Android/Sdk/cmake/3.10.2.4988404/bin/ninja  -C \"/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/debug/x86\" {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "native_app_glue-Debug-x86": {
+      "artifactName": "native_app_glue",
+      "buildCommand": "/home/tender/Android/Sdk/cmake/3.10.2.4988404/bin/ninja -C \"/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/debug/x86\" native_app_glue",
+      "abi": "x86",
+      "output": "/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/debug/x86/libnative_app_glue.a",
+      "runtimeFiles": []
+    },
+    "native-activity-Debug-x86": {
+      "artifactName": "native-activity",
+      "buildCommand": "/home/tender/Android/Sdk/cmake/3.10.2.4988404/bin/ninja -C \"/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/debug/x86\" native-activity",
+      "abi": "x86",
+      "output": "/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/build/intermediates/cmake/debug/obj/x86/libnative-activity.so",
+      "runtimeFiles": []
+    }
+  }
+}

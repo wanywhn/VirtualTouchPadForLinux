@@ -1,0 +1,74 @@
+{
+  "stringTable": {
+    "0": "/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/release/x86",
+    "1": "--target=i686-none-linux-android17 --gcc-toolchain=/home/tender/Android/Sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/linux-x86_64 --sysroot=/home/tender/Android/Sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/linux-x86_64/sysroot -Dnative_activity_EXPORTS -I/home/tender/Android/Sdk/ndk/22.1.7171670/sources/android/native_app_glue -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -std=gnu++11 -Wall -Werror -O2 -DNDEBUG -fPIC",
+    "2": "--target=i686-none-linux-android17 --gcc-toolchain=/home/tender/Android/Sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/linux-x86_64 --sysroot=/home/tender/Android/Sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/linux-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -O2 -DNDEBUG -fPIC"
+  },
+  "buildFiles": [
+    "/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/src/main/cpp/CMakeLists.txt",
+    "/home/tender/Android/Sdk/ndk/22.1.7171670/build/cmake/android.toolchain.cmake",
+    "/home/tender/Android/Sdk/ndk/22.1.7171670/build/cmake/platforms.cmake",
+    "/home/tender/Android/Sdk/ndk/22.1.7171670/build/cmake/compiler_id.cmake"
+  ],
+  "cleanCommands": [
+    "/home/tender/Android/Sdk/cmake/3.10.2.4988404/bin/ninja -C \"/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/release/x86\" clean"
+  ],
+  "buildTargetsCommand": "/home/tender/Android/Sdk/cmake/3.10.2.4988404/bin/ninja  -C \"/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/release/x86\" {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "native_app_glue-Release-x86": {
+      "buildCommand": "/home/tender/Android/Sdk/cmake/3.10.2.4988404/bin/ninja -C \"/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/release/x86\" native_app_glue",
+      "buildType": "release",
+      "toolchain": "145037130",
+      "abi": "x86",
+      "artifactName": "native_app_glue",
+      "files": [
+        {
+          "src": "/home/tender/Android/Sdk/ndk/22.1.7171670/sources/android/native_app_glue/android_native_app_glue.c",
+          "flagsOrdinal": 2,
+          "workingDirectoryOrdinal": 0
+        }
+      ],
+      "headers": [],
+      "output": "/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/release/x86/libnative_app_glue.a"
+    },
+    "native-activity-Release-x86": {
+      "buildCommand": "/home/tender/Android/Sdk/cmake/3.10.2.4988404/bin/ninja -C \"/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/release/x86\" native-activity",
+      "buildType": "release",
+      "toolchain": "145037130",
+      "abi": "x86",
+      "artifactName": "native-activity",
+      "files": [
+        {
+          "src": "/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/src/main/cpp/main.cpp",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        },
+        {
+          "src": "/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/src/main/cpp/touchPad.cpp",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        }
+      ],
+      "headers": [
+        {
+          "header": "/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/src/main/cpp/touchPad.h",
+          "workingDirectoryOrdinal": 0
+        }
+      ],
+      "output": "/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/build/intermediates/cmake/release/obj/x86/libnative-activity.so",
+      "runtimeFiles": []
+    }
+  },
+  "toolchains": {
+    "145037130": {
+      "cCompilerExecutable": "/home/tender/Android/Sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/linux-x86_64/bin/clang",
+      "cppCompilerExecutable": "/home/tender/Android/Sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
+    }
+  },
+  "cFileExtensions": [
+    "c"
+  ],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

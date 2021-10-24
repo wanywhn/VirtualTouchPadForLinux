@@ -17,6 +17,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
+        debug {
+            jniDebuggable true
+        }
     }
     lintOptions{
         checkReleaseBuilds false
@@ -34,4 +37,5 @@ android {
 }
 
 dependencies {
+
 }

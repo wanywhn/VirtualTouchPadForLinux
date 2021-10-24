@@ -1,0 +1,2 @@
+ninja: Entering directory `/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/debug/armeabi-v7a'
+ninja: no work to do.

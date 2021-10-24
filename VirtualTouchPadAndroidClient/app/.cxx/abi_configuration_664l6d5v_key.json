@@ -1,0 +1,15 @@
+{
+  "ndkHandlerSupportedAbis": [
+    "ARMEABI_V7A",
+    "X86"
+  ],
+  "ndkHandlerDefaultAbis": [
+    "ARMEABI_V7A",
+    "X86"
+  ],
+  "externalNativeBuildAbiFilters": [],
+  "ndkConfigAbiFilters": [],
+  "splitsFilterAbis": [],
+  "ideBuildOnlyTargetAbi": true,
+  "ideBuildTargetAbi": "arm64-v8a,armeabi-v7a,armeabi"
+}

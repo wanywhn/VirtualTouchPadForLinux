@@ -1,0 +1,21 @@
+                Executable : /home/tender/Android/Sdk/cmake/3.10.2.4988404/bin/cmake
+arguments : 
+-H/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/src/main/cpp
+-DCMAKE_FIND_ROOT_PATH=/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/release/prefab/armeabi-v7a/prefab
+-DCMAKE_BUILD_TYPE=Release
+-DCMAKE_TOOLCHAIN_FILE=/home/tender/Android/Sdk/ndk/22.1.7171670/build/cmake/android.toolchain.cmake
+-DANDROID_ABI=armeabi-v7a
+-DANDROID_NDK=/home/tender/Android/Sdk/ndk/22.1.7171670
+-DANDROID_PLATFORM=android-17
+-DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a
+-DCMAKE_ANDROID_NDK=/home/tender/Android/Sdk/ndk/22.1.7171670
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/build/intermediates/cmake/release/obj/armeabi-v7a
+-DCMAKE_MAKE_PROGRAM=/home/tender/Android/Sdk/cmake/3.10.2.4988404/bin/ninja
+-DCMAKE_SYSTEM_NAME=Android
+-DCMAKE_SYSTEM_VERSION=17
+-B/home/tender/Workplace/git/VirtualTouchPadForLinux/VirtualTouchPadAndroidClient/app/.cxx/cmake/release/armeabi-v7a
+-GNinja
+jvmArgs : 
+
+Build command args:

@@ -72,14 +72,14 @@ public class ConnectionService extends Service {
                         hasConnectedSendBroadcast();
                     }
                 } catch (Exception e) {
-                    Log.e("ConnectionService",  e.toString());
+                    Log.e("ConnectionService", e.toString());
                     sendConnectionBroadcast(ConnectionService.CONNECTION_FAILED_INTENT, e.getMessage());
                     stopSelf();
                 }
             });
 
             // END SETUP CONNECTION HANDLERS WITH THREADS
-        }).run();
+        }).start();
     }
 
     @Override

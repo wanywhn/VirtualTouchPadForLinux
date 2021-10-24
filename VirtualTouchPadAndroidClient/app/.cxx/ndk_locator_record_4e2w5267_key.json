@@ -1,0 +1,9 @@
+{
+  "ndkVersionFromDsl": "22.1.7171670",
+  "ndkDirProperty": "/home/tender/Android/Sdk/ndk/22.1.7171670",
+  "sdkFolder": "/home/tender/Android/Sdk",
+  "sideBySideNdkFolderNames": [
+    "22.1.7171670",
+    "21.3.6528147"
+  ]
+}

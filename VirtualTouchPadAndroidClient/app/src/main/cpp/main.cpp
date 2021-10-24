@@ -102,8 +102,8 @@ static int engine_init_display(struct engine *engine) {
      * As soon as we picked a EGLConfig, we can safely reconfigure the
      * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
     eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
-    surface = eglCreateWindowSurface(display, config, engine->app->window, NULL);
-    context = eglCreateContext(display, config, NULL, NULL);
+    surface = eglCreateWindowSurface(display, config, engine->app->window, nullptr);
+    context = eglCreateContext(display, config, nullptr, nullptr);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
         LOGW("Unable to eglMakeCurrent");
@@ -231,7 +231,7 @@ void android_main(struct android_app *state) {
     engine.app = state;
 
     JNIEnv *env;
-    state->activity->vm->AttachCurrentThread(&env, 0);
+    state->activity->vm->AttachCurrentThread(&env, nullptr);
 
     jobject me = state->activity->clazz;
 
