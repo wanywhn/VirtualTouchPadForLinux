@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.5)
 
-project(VirtualTouchPadAndroidQt VERSION 0.1 LANGUAGES CXX)
+project(VirtualTouchPadAndroidCMake VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -29,45 +29,38 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwidget.cpp
-        mainwidget.h
-        mainwidget.ui
-        startscreen.h
+        serverconfig.cpp
         startscreen.cpp
         startscreen.ui
-        touchscreen.cpp
-        touchscreen.h
         touchPad.cpp
-        touchPad.h
-
+        touchscreen.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(VirtualTouchPadAndroidQt
+    qt_add_executable(VirtualTouchPadAndroidCMake
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
 else()
     if(ANDROID)
-        add_library(VirtualTouchPadAndroidQt SHARED
+        add_library(VirtualTouchPadAndroidCMake SHARED
             ${PROJECT_SOURCES}
         )
     else()
-        add_executable(VirtualTouchPadAndroidQt
+        add_executable(VirtualTouchPadAndroidCMake
             ${PROJECT_SOURCES}
         )
     endif()
 endif()
 
-target_link_libraries(VirtualTouchPadAndroidQt PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-#target_include_directories(VirtualTouchPadAndroidQt "PacketBuilder")
+target_link_libraries(VirtualTouchPadAndroidCMake PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
-set_target_properties(VirtualTouchPadAndroidQt PROPERTIES
+set_target_properties(VirtualTouchPadAndroidCMake PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(VirtualTouchPadAndroidQt)
+    qt_finalize_executable(VirtualTouchPadAndroidCMake)
 endif()

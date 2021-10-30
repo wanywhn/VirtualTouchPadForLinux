@@ -31,12 +31,9 @@
 *.out
 *.app
 # Prerequisites
-*.d
 
 # Object files
-*.o
 *.ko
-*.obj
 *.elf
 
 # Linker output
@@ -45,25 +42,13 @@
 *.exp
 
 # Precompiled Headers
-*.gch
-*.pch
 
 # Libraries
-*.lib
-*.a
-*.la
-*.lo
 
 # Shared objects (inc. Windows DLLs)
-*.dll
-*.so
 *.so.*
-*.dylib
 
 # Executables
-*.exe
-*.out
-*.app
 *.i*86
 *.x86_64
 *.hex
@@ -183,16 +168,6 @@ fabric.properties
 .ninja_deps
 .ninja_log
 # C++ objects and libs
-*.slo
-*.lo
-*.o
-*.a
-*.la
-*.lai
-*.so
-*.so.*
-*.dll
-*.dylib
 
 # Qt-es
 object_script.*.Release
@@ -228,9 +203,6 @@ target_wrapper.*
 
 # QtCreator CMake
 CMakeLists.txt.user*
-
-# QtCreator 4.8< compilation database
-compile_commands.json
 
 # QtCreator local machine specific files for imported projects
 *creator.user*

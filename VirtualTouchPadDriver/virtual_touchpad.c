@@ -5,12 +5,9 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
-#include <linux/module.h>
-#include <linux/kernel.h>
 #include <linux/slab.h>
 #include <linux/errno.h>
 #include <linux/types.h>
-#include <linux/proc_fs.h>
 #include <linux/fcntl.h>
 #include <linux/input/mt.h>
 
@@ -18,7 +15,6 @@
 
 #include "virtual_touchpad.h"
 #include <linux/err.h>
-#include <linux/input.h>
 //vtp=virtual touch pad
 #ifndef vtp_MAJOR
 #define vtp_MAJOR 60
@@ -61,8 +57,8 @@ static void vtp_exit(void);
 static int vtp_init(void);
 
 struct file_operations vtp_fops = {
-        write:vtp_write,
-        open:vtp_open,
+        .write = vtp_write,
+        .open = vtp_open,
         .read=vtp_read,
 };
 int result;
@@ -70,8 +66,7 @@ int result;
 
 static int vtp_open(struct inode *inode, struct file *filp) {
     struct vtp_dev *vtpdev;
-    vtpdev = container_of(inode->i_cdev,
-    struct vtp_dev, mcdev);
+    vtpdev = container_of(inode->i_cdev, struct vtp_dev, mcdev);
     filp->private_data = vtpdev;
 
     return 0;

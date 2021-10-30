@@ -16,8 +16,8 @@ bool TouchScreen::event(QEvent *event) {
         }
         case QEvent::TouchBegin: {
 
-//            qDebug() << QEvent::TouchBegin;
-//            qDebug()<< tevent->touchPoints().size();
+            qDebug() << QEvent::TouchBegin;
+            qDebug()<< tevent->touchPoints().size();
             this->tp.clearState();
             auto touchPoints = tevent->touchPoints();
 

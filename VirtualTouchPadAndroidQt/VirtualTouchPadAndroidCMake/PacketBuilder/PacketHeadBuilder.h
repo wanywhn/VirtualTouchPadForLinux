@@ -44,6 +44,7 @@ public:
 
     void initRes() {
         bytes = new unsigned char[6];
+        memset(bytes, 0, 6);
         bytes[0] |=  0x4U;
         bytes[3] |=  0x11U;
     }

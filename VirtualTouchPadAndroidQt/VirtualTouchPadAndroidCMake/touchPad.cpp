@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cassert>
+#include <QDebug>
 #include <PacketBuilder/PacketStatusBuilder.h>
 #include "touchPad.h"
 #include "PacketBuilder/PacketMotionBuilder.h"
@@ -31,6 +32,7 @@ void TouchPad::SendHeadPacketForOneFingerWhenMotion() {
         headBUilder->setX(point.x);
         headBUilder->setY(point.y);
 //        LOGI("SingleHeadPacket: X:%f,Y:%f\n", currentx, currenty);
+//        qDebug()<< "HeadPacket one finger:"<< headBUilder->getBytes()[3];
         sendData(headBUilder->getBytes(), 6);
 
 }
@@ -79,16 +81,16 @@ bool TouchPad::connectTo(const char *servaddr, int port) {
     seraddr.sin_port = htons(port);
 
     if (connect(sockfd, reinterpret_cast<const sockaddr *>(&seraddr), sizeof(seraddr)) < 0) {
-        printf("connect error:%s\n", strerror(errno));
+//        printf("connect error:%s\n", strerror(errno));
         return false;
     }
     return true;
 }
 
 bool TouchPad::sendData(const unsigned char *d, size_t size) const {
-    if ((d[3] & 0x7) == 3) {
-       printf("d[3]%x\r\n",d[3]);
-    }
+//    if ((d[3] & 0x7) == 3) {
+       qDebug()<<"d[3]:"<<d[3]<<"bit[0:2]:" << (d[3]&0x7);
+//    }
     assert(write(sockfd, d, size) == size);
     return true;
 }
