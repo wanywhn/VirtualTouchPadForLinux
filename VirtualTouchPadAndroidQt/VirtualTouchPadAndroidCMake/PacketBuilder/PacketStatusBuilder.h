@@ -9,12 +9,15 @@ class PacketStatusBuilder {
 public:
 
     PacketStatusBuilder() {
+        initRes();
+    }
+    void initRes() {
+
         bytes = new unsigned char[6];
         memset(bytes, 0, 6);
         //TODO init
         bytes[0] |= 0x4U;
         bytes[3] |= 0x10U;
-
     }
 
     void setFingerTouched(unsigned int id) {
@@ -35,7 +38,7 @@ public:
     }
 
 private :
-    unsigned char *bytes;
+    unsigned char *bytes{};
 };
 
 #endif //VIRTUALTOUCHPADANDROIDCLIENT_PACKETSTATUSBUILDER_H

@@ -27,6 +27,7 @@ void StartScreen::setupUI()
     builder->setMaxX(1080);
     builder->setMaxY(1920);
     ((TouchScreen *) this->touchScreenWidget)->tp.sendData(builder->getBytes(), 6);
+    delete builder;
     connect((TouchScreen *)this->touchScreenWidget, &TouchScreen::backToStartScreen,[this](){
         this->setCurrentWidget(this->mainWidget);
     });

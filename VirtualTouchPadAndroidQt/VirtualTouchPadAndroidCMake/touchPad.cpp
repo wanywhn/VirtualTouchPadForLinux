@@ -19,6 +19,7 @@ TouchPad::TouchPad() {
 
 void TouchPad::SendHeadPacketForOneFingerWhenMotion() {
     static PacketHeadBuilder headBuilder;
+    headBuilder.initRes();
     //TODO touchMajor etc
     auto id = mActivatePoints.begin()->first;
     auto point = mActivatePoints.begin()->second;
@@ -31,34 +32,36 @@ void TouchPad::SendHeadPacketForOneFingerWhenMotion() {
 }
 
 void TouchPad::SendHeadPacket() {
-    auto headBUilder = new PacketHeadBuilder();
+    static PacketHeadBuilder packetHeadBuilder;
+    packetHeadBuilder.initRes();
 
     //TODO cnt should use the number in event
     for (auto item: mActivatePoints) {
         auto pid = item.first;
         //!!FIXME
-        headBUilder->setWidth((short) pid);
+        packetHeadBuilder.setWidth((short) pid);
         // TODO get pressure
-        headBUilder->setPressure(2);
-        headBUilder->setX(item.second.x);
-        headBUilder->setY(item.second.y);
-        headBUilder->setId(pid);
-        sendData(headBUilder->getBytes(), 6);
+        packetHeadBuilder.setPressure(2);
+        packetHeadBuilder.setX(item.second.x);
+        packetHeadBuilder.setY(item.second.y);
+        packetHeadBuilder.setId(pid);
+        sendData(packetHeadBuilder.getBytes(), 6);
     }
 }
 
 void TouchPad::SendStatusPacket() {
     //prepare and send status packet;
-    auto statusBuilder = new PacketStatusBuilder();
+    static PacketStatusBuilder statusBuilder;
+    statusBuilder.initRes();
 
     //TODO use non-block send
     for (auto &mActivatePoint: mActivatePoints) {
         //FIXME id should be 0-4
         //TODO palm???
-        statusBuilder->setFingerTouched(mActivatePoint.first);
+        statusBuilder.setFingerTouched(mActivatePoint.first);
 //        LOGI("send status packet:activate: %d\n", mActivatePoint.first);
     }
-    sendData(statusBuilder->getBytes(), 6);
+    sendData(statusBuilder.getBytes(), 6);
 }
 
 bool TouchPad::connectTo(const char *servaddr, int port) {
@@ -83,6 +86,7 @@ bool TouchPad::sendData(const unsigned char *d, size_t size) const {
 
 int TouchPad::updatePointMotion() {
     static PacketMotionBuilder motionBuilder;
+    motionBuilder.initRes();
     static bool clearFlag = true;
 
     for (auto item: mActivatePoints) {
