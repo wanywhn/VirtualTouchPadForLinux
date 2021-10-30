@@ -17,7 +17,7 @@ public:
     }
 
     void setId1(unsigned int id) {
-        bytes[0] |= ((id&0x7) << 5U) & 0xffU;
+        bytes[0] |= ((id & 0x7) << 5U) & 0xffU;
     }
 
     void setX1(int x) {
@@ -34,7 +34,7 @@ public:
     }
 
     void setX2(int x) {
-        bytes[4] |=  x;
+        bytes[4] |= x;
     }
 
     void setY2(int y) {
@@ -45,23 +45,18 @@ public:
         initRes();
     }
 
-
     unsigned char *getBytes() {
         return bytes;
     }
 
-
     void initRes() {
-
         bytes = new unsigned char[6];
         memset(bytes, 0, 6);
-        bytes[0] |=  0x4U;
-        bytes[3] |=  0x12U;
+        bytes[0] |= 0x4U;
+        bytes[3] |= 0x12U;
     }
 
-
 private:
-
     unsigned char *bytes{};
 };
 

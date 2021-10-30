@@ -5,15 +5,14 @@
 
 #include <QWidget>
 
-class TouchScreen : public QWidget
-{
-    Q_OBJECT
+class TouchScreen : public QWidget {
+Q_OBJECT
 public:
     explicit TouchScreen(QWidget *parent = nullptr);
 
 signals:
-    void backToStartScreen();
 
+    void backToStartScreen();
 
     // QObject interface
 public:

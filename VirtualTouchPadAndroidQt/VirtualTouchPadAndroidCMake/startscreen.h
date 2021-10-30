@@ -5,11 +5,9 @@
 #include <QStackedWidget>
 #include "touchscreen.h"
 
-
 class StartScreen : public QStackedWidget
 {
     Q_OBJECT
-
 public:
     explicit StartScreen(QWidget *parent = nullptr);
     void setupUI();
@@ -20,11 +18,9 @@ public:
     TouchScreen *touchScreenWidget{};
     QWidget *testConnWidget{};
 
-
     // QWidget interface
 protected:
     void keyPressEvent(QKeyEvent *event) override;
-
 
     // QObject interface
 public:

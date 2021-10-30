@@ -5,9 +5,9 @@
 #ifndef VIRTUALTOUCHPADANDROIDCLIENT_PACKETHEADBUILDER_H
 #define VIRTUALTOUCHPADANDROIDCLIENT_PACKETHEADBUILDER_H
 
-class PacketHeadBUilder {
+class PacketHeadBuilder {
 public:
-    PacketHeadBUilder() {
+    PacketHeadBuilder() {
         initRes();
     }
 
@@ -49,13 +49,12 @@ public:
         bytes[3] |=  0x11U;
     }
 
-
     unsigned char *getBytes() {
         return bytes;
     }
 
 private :
-    unsigned char *bytes;
+    unsigned char *bytes{};
 };
 
 #endif //VIRTUALTOUCHPADANDROIDCLIENT_PACKETHEADBUILDER_H

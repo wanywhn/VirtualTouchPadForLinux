@@ -5,7 +5,6 @@
 
 TouchScreen::TouchScreen(QWidget *parent) : QWidget(parent) {
     setAttribute(Qt::WA_AcceptTouchEvents);
-
 }
 
 bool TouchScreen::event(QEvent *event) {
@@ -17,13 +16,12 @@ bool TouchScreen::event(QEvent *event) {
         case QEvent::TouchBegin: {
 
             qDebug() << QEvent::TouchBegin;
-            qDebug()<< tevent->touchPoints().size();
+            qDebug() << tevent->touchPoints().size();
             this->tp.clearState();
             auto touchPoints = tevent->touchPoints();
 
-
-            for (const auto &point : touchPoints) {
-                this->tp.addPoint(point.id(), {(int)point.pos().x(), (int)point.pos().y()});
+            for (const auto &point: touchPoints) {
+                this->tp.addPoint(point.id(), {(int) point.pos().x(), (int) point.pos().y()});
             }
             this->tp.SendStatusPacket();
             this->tp.SendHeadPacket();
@@ -36,11 +34,12 @@ bool TouchScreen::event(QEvent *event) {
             if (count == 0) {
                 break;
             }
-            for (auto point:tevent->touchPoints()) {
+            for (const auto& point: tevent->touchPoints()) {
                 switch (point.state()) {
                     case Qt::TouchPointMoved:
                     case Qt::TouchPointPressed: {
-                        this->tp.addPoint(point.id(), {static_cast<int>(point.pos().x()), static_cast<int>(point.pos().y())});
+                        this->tp.addPoint(point.id(),
+                                          {static_cast<int>(point.pos().x()), static_cast<int>(point.pos().y())});
                         break;
                     }
                     case Qt::TouchPointReleased: {
@@ -59,8 +58,6 @@ bool TouchScreen::event(QEvent *event) {
             }
             this->tp.mLastFingerCount = this->tp.PointCounts();
 
-//            qDebug() << QEvent::TouchUpdate;
-//            qDebug()<< tevent->touchPoints().size();
             if (count == 1) {
                 this->tp.SendHeadPacketForOneFingerWhenMotion();
             } else {

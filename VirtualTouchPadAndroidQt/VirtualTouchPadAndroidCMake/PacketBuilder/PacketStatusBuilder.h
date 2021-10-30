@@ -15,7 +15,6 @@ public:
         bytes[0] |= 0x4U;
         bytes[3] |= 0x10U;
 
-
     }
 
     void setFingerTouched(unsigned int id) {

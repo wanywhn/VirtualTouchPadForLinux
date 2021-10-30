@@ -92,7 +92,7 @@ public:
 private:
 
     std::unordered_map<int, PointF> mActivatePoints;
-    int sockfd;
+    int sockfd{};
 
 };
 

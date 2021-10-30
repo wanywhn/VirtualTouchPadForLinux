@@ -11,49 +11,40 @@
 #include <PacketBuilder/PacketStatusBuilder.h>
 #include "touchPad.h"
 #include "PacketBuilder/PacketMotionBuilder.h"
-#include "PacketBuilder/PacketConfigBuilder.h"
 
 TouchPad::TouchPad() {
     mLastFingerCount = -1;
 
 }
 
-
 void TouchPad::SendHeadPacketForOneFingerWhenMotion() {
-        auto headBUilder = new PacketHeadBUilder();
+    auto headBUilder = new PacketHeadBuilder();
 //        float currenty = event.getHistoricalY(i);
-        //TODO touchMajor etc
-        auto id = mActivatePoints.begin()->first;
-        auto point = mActivatePoints.begin()->second;
-        headBUilder->setId(id);
-//        headBUilder->setWidth((short) (event.getHistoricalTouchMajor(i)));
-//        float press = event.getHistoricalPressure(i) * 100;
-        headBUilder->setPressure(2);
-        headBUilder->setX(point.x);
-        headBUilder->setY(point.y);
-//        LOGI("SingleHeadPacket: X:%f,Y:%f\n", currentx, currenty);
-//        qDebug()<< "HeadPacket one finger:"<< headBUilder->getBytes()[3];
-        sendData(headBUilder->getBytes(), 6);
+    //TODO touchMajor etc
+    auto id = mActivatePoints.begin()->first;
+    auto point = mActivatePoints.begin()->second;
+    headBUilder->setId(id);
+    headBUilder->setPressure(2);
+    headBUilder->setX(point.x);
+    headBUilder->setY(point.y);
+    sendData(headBUilder->getBytes(), 6);
 
 }
 
 void TouchPad::SendHeadPacket() {
-    auto headBUilder = new PacketHeadBUilder();
+    auto headBUilder = new PacketHeadBuilder();
 
     //TODO cnt should use the number in event
-    for (auto item:mActivatePoints){
-        auto pid=item.first;
+    for (auto item: mActivatePoints) {
+        auto pid = item.first;
         //!!FIXME
         headBUilder->setWidth((short) pid);
+        // TODO get pressure
         headBUilder->setPressure(2);
-//        auto x = mActivatePoints.at(pid)->x;
-//        auto y = mActivatePoints.at(pid)->y;
         headBUilder->setX(item.second.x);
         headBUilder->setY(item.second.y);
         headBUilder->setId(pid);
         sendData(headBUilder->getBytes(), 6);
-//        LOGI("ACTION_MOVE/HEAD:FingerID:%d,X:%f,Y:%f\n", pid, x, y);
-
     }
 }
 
@@ -62,7 +53,7 @@ void TouchPad::SendStatusPacket() {
     auto statusBuilder = new PacketStatusBuilder();
 
     //TODO use non-block send
-    for (auto &mActivatePoint : mActivatePoints) {
+    for (auto &mActivatePoint: mActivatePoints) {
         //FIXME id should be 0-4
         //TODO palm???
         statusBuilder->setFingerTouched(mActivatePoint.first);
@@ -81,16 +72,12 @@ bool TouchPad::connectTo(const char *servaddr, int port) {
     seraddr.sin_port = htons(port);
 
     if (connect(sockfd, reinterpret_cast<const sockaddr *>(&seraddr), sizeof(seraddr)) < 0) {
-//        printf("connect error:%s\n", strerror(errno));
         return false;
     }
     return true;
 }
 
 bool TouchPad::sendData(const unsigned char *d, size_t size) const {
-//    if ((d[3] & 0x7) == 3) {
-       qDebug()<<"d[3]:"<<d[3]<<"bit[0:2]:" << (d[3]&0x7);
-//    }
     assert(write(sockfd, d, size) == size);
     return true;
 }
@@ -99,7 +86,7 @@ int TouchPad::updatePointMotion() {
     static PacketMotionBuilder motionBuilder;
     static bool clearFlag = true;
 
-    for (auto item : mActivatePoints) {
+    for (auto item: mActivatePoints) {
         auto point = item.second;
         if (point.x == point.px && point.y == point.py) {
             continue;
