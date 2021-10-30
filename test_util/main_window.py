@@ -1,8 +1,8 @@
 import socket
 import sys
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QApplication, QLabel, QWidget, QPushButton, QVBoxLayout, QComboBox, QLineEdit, \
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QLabel, QWidget, QPushButton, QVBoxLayout, QComboBox, QLineEdit, \
     QMessageBox
 
 from HeadWidget import HeadWidget

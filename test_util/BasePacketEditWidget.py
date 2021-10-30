@@ -1,4 +1,4 @@
-from PySide2.QtWidgets import QWidget, QHBoxLayout, QCheckBox, QVBoxLayout, QLineEdit, QLabel, QPushButton
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QCheckBox, QVBoxLayout, QLineEdit, QLabel, QPushButton
 
 
 class BasePacketEditWidget(QWidget):
