@@ -52,8 +52,11 @@ public:
         return bytes;
     }
 
-private:
+    virtual ~PacketConfigBuilder() {
+        delete bytes;
+    }
 
+private:
     unsigned char *bytes{};
 
 };

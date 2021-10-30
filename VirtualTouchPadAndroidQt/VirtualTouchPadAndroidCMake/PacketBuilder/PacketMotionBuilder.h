@@ -56,6 +56,10 @@ public:
         bytes[3] |= 0x12U;
     }
 
+    virtual ~PacketMotionBuilder() {
+        delete bytes;
+    }
+
 private:
     unsigned char *bytes{};
 };

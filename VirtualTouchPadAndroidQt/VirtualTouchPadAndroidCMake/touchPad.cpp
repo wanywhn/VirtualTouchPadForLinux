@@ -18,16 +18,15 @@ TouchPad::TouchPad() {
 }
 
 void TouchPad::SendHeadPacketForOneFingerWhenMotion() {
-    auto headBUilder = new PacketHeadBuilder();
-//        float currenty = event.getHistoricalY(i);
+    static PacketHeadBuilder headBuilder;
     //TODO touchMajor etc
     auto id = mActivatePoints.begin()->first;
     auto point = mActivatePoints.begin()->second;
-    headBUilder->setId(id);
-    headBUilder->setPressure(2);
-    headBUilder->setX(point.x);
-    headBUilder->setY(point.y);
-    sendData(headBUilder->getBytes(), 6);
+    headBuilder.setId(id);
+    headBuilder.setPressure(2);
+    headBuilder.setX(point.x);
+    headBuilder.setY(point.y);
+    sendData(headBuilder.getBytes(), 6);
 
 }
 

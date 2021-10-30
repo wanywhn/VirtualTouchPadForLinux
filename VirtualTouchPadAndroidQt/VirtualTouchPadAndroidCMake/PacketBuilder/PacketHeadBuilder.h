@@ -53,6 +53,10 @@ public:
         return bytes;
     }
 
+    virtual ~PacketHeadBuilder() {
+        delete bytes;
+    }
+
 private :
     unsigned char *bytes{};
 };

@@ -30,6 +30,10 @@ public:
         return bytes;
     }
 
+    virtual ~PacketStatusBuilder() {
+        delete bytes;
+    }
+
 private :
     unsigned char *bytes;
 };
