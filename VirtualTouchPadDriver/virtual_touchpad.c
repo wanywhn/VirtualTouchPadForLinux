@@ -331,59 +331,60 @@ void configure_device(struct vtp_dev *vtp_dev1) {
     } else {
         //TODO sometime bit flip?
         //inited=false;
+        printk(" error[%d] \r\n", __LINE__);
         return;
 
-    }
-    if (vtp_dev1->etd->tp_dev != NULL) {
-        input_unregister_device(vtp_dev1->etd->tp_dev);
-        vtp_dev1->etd->tp_dev = NULL;
-    }
-    if (vtp_dev1->etd->ts_dev != NULL) {
-        input_unregister_device(vtp_dev1->etd->ts_dev);
-        vtp_dev1->etd->ts_dev = NULL;
     }
     printk("x:%d,y:%d,resx:%d,resy:%d,connect:%d", info.max_x_mm, info.max_y_mm, info.res_x, info.res_y, info.connect);
 
-    /***init touchpad device***/
-    struct input_dev *input_dev_tp = input_allocate_device();
-    if (input_dev_tp == NULL) {
-        printk("Bad input_alloc_device()\n");
-        return;
+    if (vtp_dev1->etd->tp_dev == NULL) {
+        /***init touchpad device***/
+        struct input_dev *input_dev_tp = input_allocate_device();
+        if (input_dev_tp == NULL) {
+            printk("Bad input_alloc_device()\n");
+            return;
+        }
+        input_dev_tp->name = "Virtual Touch Pad";
+        input_dev_tp->phys = "vtp";
+        input_dev_tp->id.bustype = BUS_VIRTUAL;
+        input_dev_tp->id.vendor = 0x0000;
+        input_dev_tp->id.product = 0x0000;
+        input_dev_tp->id.version = 0x0000;
+        setup_dev(input_dev_tp, &info);
+        if ((result = input_register_device(input_dev_tp)) != 0) {
+            return;
+        }
+        vtp_dev1->etd->tp_dev = input_dev_tp;
+    } else {
+        setup_dev(vtp_dev1->etd->tp_dev, &info);
+        input_reset_device(vtp_dev1->etd->tp_dev);
     }
-    input_dev_tp->name = "Virtual Touch Pad";
-    input_dev_tp->phys = "vtp";
-    input_dev_tp->id.bustype = BUS_VIRTUAL;
-    input_dev_tp->id.vendor = 0x0000;
-    input_dev_tp->id.product = 0x0000;
-    input_dev_tp->id.version = 0x0000;
 
-    setup_dev(input_dev_tp, &info);
+    if (vtp_dev1->etd->ts_dev == NULL) {
+        struct input_dev *input_dev_ts = input_allocate_device();
 
-    if ((result = input_register_device(input_dev_tp)) != 0) {
-        return;
+        if (input_dev_ts == NULL) {
+            printk("Bad input_alloc_device()\n");
+            return;
+        }
+        input_dev_ts->name = "Virtual Touch Screen";
+        input_dev_ts->phys = "vts";
+        input_dev_ts->id.bustype = BUS_VIRTUAL;
+        input_dev_ts->id.vendor = 0x0000;
+        input_dev_ts->id.product = 0x0000;
+        input_dev_ts->id.version = 0x0000;
+
+        info.isTouchPad = false;
+        setup_dev(input_dev_ts, &info);
+
+        if ((result = input_register_device(input_dev_ts)) != 0) {
+            return;
+        }
+        vtp_dev1->etd->ts_dev = input_dev_ts;
+    } else {
+        setup_dev(vtp_dev1->etd->ts_dev, &info);
+        input_reset_device(vtp_dev1->etd->ts_dev);
     }
-    vtp_dev1->etd->tp_dev = input_dev_tp;
-
-    struct input_dev *input_dev_ts = input_allocate_device();
-
-    if (input_dev_ts == NULL) {
-        printk("Bad input_alloc_device()\n");
-        return;
-    }
-    input_dev_ts->name = "Virtual Touch Screen";
-    input_dev_ts->phys = "vts";
-    input_dev_ts->id.bustype = BUS_VIRTUAL;
-    input_dev_ts->id.vendor = 0x0000;
-    input_dev_ts->id.product = 0x0000;
-    input_dev_ts->id.version = 0x0000;
-
-    info.isTouchPad = false;
-    setup_dev(input_dev_ts, &info);
-
-    if ((result = input_register_device(input_dev_ts)) != 0) {
-        return;
-    }
-    vtp_dev1->etd->ts_dev = input_dev_ts;
 }
 
 static int elantech_packet_check_v4(unsigned char *data) {
