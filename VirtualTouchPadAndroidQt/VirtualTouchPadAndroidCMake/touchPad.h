@@ -48,8 +48,7 @@ public:
 
     void clearState() {
         this->mActivatePoints.clear();
-
-
+        this->mLastFingerCount = 0;
     }
 
     void addPoint(int id, PointF point) {
@@ -57,6 +56,8 @@ public:
         if (item == mActivatePoints.cend()) {
             mActivatePoints.emplace(id, point);
         } else {
+            item->second.px = item->second.x;
+            item->second.py = item->second.y;
             item->second.x = point.x;
             item->second.y = point.y;
         }

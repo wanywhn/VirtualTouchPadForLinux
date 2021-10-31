@@ -19,7 +19,7 @@ void StartScreen::setupUI()
     this->mainWidget = new QWidget(this);
     this->touchScreenWidget = new TouchScreen(this);
 
-    this->touchScreenWidget->tp.connectTo("192.168.139.202", 6781);
+    this->touchScreenWidget->tp.connectTo("192.168.212.202", 6781);
     auto builder = new PacketConfigBuilder();
     builder->setConnect(true);
     builder->setResX(10);

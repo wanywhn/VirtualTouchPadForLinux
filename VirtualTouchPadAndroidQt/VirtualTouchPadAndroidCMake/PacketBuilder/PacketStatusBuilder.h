@@ -21,6 +21,7 @@ public:
     }
 
     void setFingerTouched(unsigned int id) {
+        qDebug()<<"id:"<<(id & 0x7);
         bytes[1] |= (1U << (id & 0x7)) & 0x1fU;
 
     }
