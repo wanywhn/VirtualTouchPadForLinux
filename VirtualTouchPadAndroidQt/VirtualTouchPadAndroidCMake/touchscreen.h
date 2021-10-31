@@ -13,6 +13,7 @@ public:
 signals:
 
     void backToStartScreen();
+    void serverConnectStatus(bool connected);
 
     // QObject interface
 public:
@@ -20,6 +21,12 @@ public:
 
 public:
     TouchPad tp;
+
+public slots:
+    void connectToServer(const char* serverAddr, int port) {
+        auto connected = this->tp.connectTo(serverAddr, port);
+        emit serverConnectStatus(connected);
+    }
 
     // QWidget interface
 protected:

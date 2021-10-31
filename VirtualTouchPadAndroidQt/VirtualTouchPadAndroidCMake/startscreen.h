@@ -3,9 +3,10 @@
 
 #include <QKeyEvent>
 #include <QStackedWidget>
+#include "serverconfig.h"
 #include "touchscreen.h"
 
-class StartScreen : public QStackedWidget
+class StartScreen : public QWidget
 {
     Q_OBJECT
 public:
@@ -13,10 +14,10 @@ public:
     void setupUI();
     ~StartScreen() override = default;
 
-    QWidget *mainWidget{};
-    QWidget *setupConnWidget{};
-    TouchScreen *touchScreenWidget{};
-    QWidget *testConnWidget{};
+    QStackedWidget *stackedWidget;
+    QWidget *mainWidget;
+    ServerConfig *setupConnWidget;
+    TouchScreen *touchScreenWidget;
 
     // QWidget interface
 protected:

@@ -9,7 +9,11 @@ class ServerConfig : public QWidget
 public:
     explicit ServerConfig(QWidget *parent = nullptr);
 
+public slots:
+    void connectStatus(bool connected);
 signals:
+    void connectToServer(const char *serverAddr, int port);
+    void backtoStartScreen();
 
 public slots:
 };
