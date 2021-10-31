@@ -34,12 +34,12 @@ void TouchPad::SendHeadPacketForOneFingerWhenMotion() {
 
 void TouchPad::SendHeadPacket() {
     static PacketHeadBuilder packetHeadBuilder;
-    packetHeadBuilder.initRes();
 
     //TODO cnt should use the number in event
     for (auto item: mActivatePoints) {
         auto pid = item.first;
         //!!FIXME
+        packetHeadBuilder.initRes();
         packetHeadBuilder.setWidth((short) pid);
         // TODO get pressure
         packetHeadBuilder.setPressure(2);

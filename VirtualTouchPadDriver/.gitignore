@@ -76,6 +76,7 @@ Makefile
 cmake_install.cmake
 install_manifest.txt
 compile_commands.json
+compile_commands.json.user
 CTestTestfile.cmake
 _deps
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider

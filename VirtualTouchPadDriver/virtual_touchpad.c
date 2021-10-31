@@ -105,10 +105,11 @@ static void process_packet_status_v4(struct vtp_dev *vtp_dev1) {
     spin_lock(&countLock);
     fingerCount = 0;
 
-    clear_state(dev_tp);
-    clear_state(dev_ts);
+//    clear_state(dev_tp);
+//    clear_state(dev_ts);
     /* notify finger state change */
     fingers = packet[1] & 0x1f;
+    printk("status for ids[0x%x] \r\n", fingers);
     for (i = 0; i < VTP_MAX_FINGER; i++) {
         if ((fingers & (1 << i)) == 0) {
             input_mt_slot(dev_tp, i);
@@ -135,7 +136,7 @@ static void process_packet_status_v4(struct vtp_dev *vtp_dev1) {
 //	if (fingerCount <= 1) {
 //		clear_state(dev_ts);
 //	} else {
-    clear_state(dev_tp);
+//    clear_state(dev_tp);
 //	}
     input_sync_v4(dev_tp);
 //	input_sync_v4(dev_ts);
@@ -150,7 +151,8 @@ static void process_packet_head_v4(struct vtp_dev *vtp_dev1) {
     struct input_dev *dev;
     struct elantech_data *etd = vtp_dev1->etd;
     unsigned char *packet = vtp_dev1->packet;
-    int id = ((packet[3] & 0xe0) >> 5) - 1;
+    int id = ((packet[3] & 0xe0) >> 5);// - 1;
+    printk("head for id[%d] \r\n", id);
     int pres, traces;
 
     if (id < 0)
@@ -196,7 +198,7 @@ static void process_packet_head_v4(struct vtp_dev *vtp_dev1) {
 
 //	if (fingerCount <= 1||fingerCount>=3) {
     dev = etd->tp_dev;
-    clear_state(vtp_dev1->etd->ts_dev);
+//    clear_state(vtp_dev1->etd->ts_dev);
     input_sync_v4(vtp_dev1->etd->ts_dev);
     isTouchScreen = false;
 //	} else {
