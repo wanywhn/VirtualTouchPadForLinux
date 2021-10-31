@@ -109,7 +109,7 @@ static void process_packet_status_v4(struct vtp_dev *vtp_dev1) {
 //    clear_state(dev_ts);
     /* notify finger state change */
     fingers = packet[1] & 0x1f;
-    printk("status for ids[0x%x] \r\n", fingers);
+//    printk("status for ids[0x%x] \r\n", fingers);
     for (i = 0; i < VTP_MAX_FINGER; i++) {
         if ((fingers & (1 << i)) == 0) {
             input_mt_slot(dev_tp, i);
@@ -152,7 +152,7 @@ static void process_packet_head_v4(struct vtp_dev *vtp_dev1) {
     struct elantech_data *etd = vtp_dev1->etd;
     unsigned char *packet = vtp_dev1->packet;
     int id = ((packet[3] & 0xe0) >> 5);// - 1;
-    printk("head for id[%d] \r\n", id);
+//    printk("head for id[%d] \r\n", id);
     int pres, traces;
 
     if (id < 0)
@@ -253,7 +253,7 @@ static void process_packet_motion_v4(struct vtp_dev *vtp_dev1) {
     int weight, delta_x1 = 0, delta_y1 = 0, delta_x2 = 0, delta_y2 = 0;
     int id, sid;
 
-    id = ((packet[0] & 0xe0) >> 5) - 1;
+    id = ((packet[0] & 0xe0) >> 5);// - 1;
     if (id < 0)
         return;
     if (!isTouchScreen) {
@@ -265,7 +265,7 @@ static void process_packet_motion_v4(struct vtp_dev *vtp_dev1) {
         clear_state(vtp_dev1->etd->tp_dev);
         input_sync_v4(vtp_dev1->etd->tp_dev);
     }
-    sid = ((packet[3] & 0xe0) >> 5) - 1;
+    sid = ((packet[3] & 0xe0) >> 5);// - 1;
     weight = (packet[0] & 0x10) ? ETP_WEIGHT_VALUE : 1;
     /*
      * Motion packets give us the delta of x, y values of specific fingers,
@@ -277,20 +277,31 @@ static void process_packet_motion_v4(struct vtp_dev *vtp_dev1) {
     delta_x2 = (signed char) packet[4];
     delta_y2 = (signed char) packet[5];
 
+    if ((delta_x1 == 0) && (delta_y1 ==0)) {
+        goto PROCESS_ID_2;
+    }
 
     etd->mt[id].x += delta_x1 * weight;
     etd->mt[id].y += delta_y1 * weight;
+    printk("motion for id:%d, x[%d],y[%d]\r\n",id, etd->mt[id].x, etd->mt[id].y);
     input_mt_slot(dev, id);
     input_report_abs(dev, ABS_MT_POSITION_X, etd->mt[id].x);
     input_report_abs(dev, ABS_MT_POSITION_Y, etd->mt[id].y);
 
+PROCESS_ID_2:
+
     if (sid >= 0) {
+        if ((delta_x2 == 0) && (delta_y2 == 0)) {
+            goto MOTION_OUT;
+        }
         etd->mt[sid].x += delta_x2 * weight;
         etd->mt[sid].y += delta_y2 * weight;
         input_mt_slot(dev, sid);
         input_report_abs(dev, ABS_MT_POSITION_X, etd->mt[sid].x);
         input_report_abs(dev, ABS_MT_POSITION_Y, etd->mt[sid].y);
+        printk("motion for id:%d, x[%d],y[%d]\r\n",sid, etd->mt[sid].x, etd->mt[sid].y);
     }
+MOTION_OUT:
 
     input_sync_v4(dev);
 }
