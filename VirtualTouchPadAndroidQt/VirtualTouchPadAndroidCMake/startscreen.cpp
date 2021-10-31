@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QScreen>
 
 #include <PacketBuilder/PacketConfigBuilder.h>
 
@@ -19,13 +20,13 @@ void StartScreen::setupUI()
     this->mainWidget = new QWidget(this);
     this->touchScreenWidget = new TouchScreen(this);
 
-    this->touchScreenWidget->tp.connectTo("192.168.212.202", 6781);
+    this->touchScreenWidget->tp.connectTo("192.168.84.202", 6781);
     auto builder = new PacketConfigBuilder();
     builder->setConnect(true);
     builder->setResX(10);
     builder->setResY(10);
-    builder->setMaxX(1080);
-    builder->setMaxY(1920);
+    builder->setMaxX(qApp->screens()[0]->size().width());
+    builder->setMaxY(qApp->screens()[0]->size().height());
     ((TouchScreen *) this->touchScreenWidget)->tp.sendData(builder->getBytes(), 6);
     delete builder;
     connect((TouchScreen *)this->touchScreenWidget, &TouchScreen::backToStartScreen,[this](){

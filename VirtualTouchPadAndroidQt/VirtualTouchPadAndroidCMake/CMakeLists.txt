@@ -34,6 +34,7 @@ set(PROJECT_SOURCES
         startscreen.ui
         touchPad.cpp
         touchscreen.cpp
+        android/AndroidManifest.xml
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -64,3 +65,5 @@ set_target_properties(VirtualTouchPadAndroidCMake PROPERTIES
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(VirtualTouchPadAndroidCMake)
 endif()
+
+set(ANDROID_PACKAGE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/android CACHE INTERNAL "")
