@@ -23,9 +23,6 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *event) override;
 
-    // QObject interface
-public:
-    bool event(QEvent *event) override;
 };
 
 #endif // STARTSCREEN_H

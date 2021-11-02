@@ -82,11 +82,6 @@ void StartScreen::keyPressEvent(QKeyEvent *event)
 {
     if(event->key() == Qt::Key_Back) {
         this->stackedWidget->setCurrentWidget(this->mainWidget);
-        event->accept();
     }
-}
-bool StartScreen::event(QEvent *event)
-{
-    return false;
 }
 
