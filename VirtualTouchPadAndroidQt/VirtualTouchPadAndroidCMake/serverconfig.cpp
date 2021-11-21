@@ -4,14 +4,20 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QSettings>
+
+
+#define SETTINGS_IP "connect/ip"
+#define SETTINGS_PORT "connect/port"
 
 ServerConfig::ServerConfig(QWidget *parent) : QWidget(parent) {
     auto layout = new QFormLayout(this);
     auto ipLineEdit = new QLineEdit();
-    ipLineEdit->setText("127.0.0.1");
+    QSettings settings;
+    ipLineEdit->setText(settings.value(SETTINGS_IP, "127.0.0.1").toString());
     layout->addRow("Server IP", ipLineEdit);
     auto portLineEdit = new QLineEdit();
-    portLineEdit->setText("6781");
+    portLineEdit->setText(settings.value(SETTINGS_PORT, "6781").toString());
     layout->addRow("Server Port", portLineEdit);
 
     auto connectBtn = new QPushButton("Connect", this);
@@ -20,6 +26,9 @@ ServerConfig::ServerConfig(QWidget *parent) : QWidget(parent) {
             QMessageBox::warning(this, "Para Error", "please enter");
             return;
         }
+        QSettings setting;
+        setting.setValue(SETTINGS_IP, ipLineEdit->text().toStdString().data());
+        setting.setValue(SETTINGS_PORT,portLineEdit->text().toStdString().data());
         emit connectToServer(ipLineEdit->text().toStdString().data(), portLineEdit->text().toInt());
     });
     layout->addRow(connectBtn);
