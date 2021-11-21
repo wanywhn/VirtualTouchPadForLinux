@@ -6,12 +6,13 @@
 #include "serverconfig.h"
 #include "touchscreen.h"
 
-class StartScreen : public QStackedWidget
-{
-    Q_OBJECT
+class StartScreen : public QStackedWidget {
+Q_OBJECT
 public:
     explicit StartScreen(QWidget *parent = nullptr);
+
     void setupUI();
+
     ~StartScreen() override = default;
 
     QWidget *mainWidget;

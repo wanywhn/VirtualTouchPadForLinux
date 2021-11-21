@@ -35,7 +35,7 @@ bool TouchScreen::event(QEvent *event) {
             if (count == 0) {
                 break;
             }
-            for (const auto& point: tevent->touchPoints()) {
+            for (const auto &point: tevent->touchPoints()) {
                 switch (point.state()) {
                     case Qt::TouchPointMoved:
                     case Qt::TouchPointPressed: {
@@ -54,7 +54,8 @@ bool TouchScreen::event(QEvent *event) {
                 }
             }
             if (this->tp.mLastFingerCount != this->tp.PointCounts()) {
-                qDebug()<<"finger num changed, prev[%d]"<< this->tp.mLastFingerCount<<" curr[%d]"<<this->tp.PointCounts();
+                qDebug() << "finger num changed, prev[%d]" << this->tp.mLastFingerCount << " curr[%d]"
+                         << this->tp.PointCounts();
                 this->tp.SendStatusPacket();
                 this->tp.SendHeadPacket();
                 this->tp.mLastFingerCount = this->tp.PointCounts();
@@ -72,8 +73,8 @@ bool TouchScreen::event(QEvent *event) {
         }
         case QEvent::TouchEnd: {
 //            for (auto const &item :tevent->touchPoints()) {
-                qDebug() << QEvent::TouchEnd;
-                qDebug()<< tevent->touchPoints().size();
+            qDebug() << QEvent::TouchEnd;
+            qDebug() << tevent->touchPoints().size();
 //                qDebug()<<item.id();
 //                qDebug() << item;
 //                this->tp.removePoint(item.id());

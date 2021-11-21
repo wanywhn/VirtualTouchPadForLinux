@@ -12,11 +12,11 @@ public:
     }
 
     void setWidth(unsigned short width) {
-        bytes[0] |=  width << 4U;
+        bytes[0] |= width << 4U;
     }
 
     void setPressure(unsigned int pressure) {
-        bytes[1] |=  pressure & 0xf0U;
+        bytes[1] |= pressure & 0xf0U;
         bytes[4] |= (pressure & 0xfU) << 4U;
     }
 
@@ -45,8 +45,8 @@ public:
     void initRes() {
         bytes = new unsigned char[6];
         memset(bytes, 0, 6);
-        bytes[0] |=  0x4U;
-        bytes[3] |=  0x11U;
+        bytes[0] |= 0x4U;
+        bytes[3] |= 0x11U;
     }
 
     unsigned char *getBytes() {

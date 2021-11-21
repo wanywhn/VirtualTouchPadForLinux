@@ -23,7 +23,7 @@ void TouchPad::SendHeadPacketForOneFingerWhenMotion() {
     //TODO touchMajor etc
     auto id = mActivatePoints.begin()->first;
     auto point = mActivatePoints.begin()->second;
-    qDebug()<< "num:"<< mActivatePoints.size()<< " id:" << id << " x:" << point.x << " y:" << point.y;
+    qDebug() << "num:" << mActivatePoints.size() << " id:" << id << " x:" << point.x << " y:" << point.y;
     headBuilder.setId(id);
     headBuilder.setPressure(2);
     headBuilder.setX(point.x);
@@ -102,14 +102,14 @@ int TouchPad::updatePointMotion() {
             motionBuilder.setId1(item.first);
             motionBuilder.setX1(point.x - point.px);
             motionBuilder.setY1(point.y - point.py);
-            qDebug()<< "id"<< item.first<<"x1-px:"<<point.x - point.px << " y1-px:"<< point.y-point.py;
+            qDebug() << "id" << item.first << "x1-px:" << point.x - point.px << " y1-px:" << point.y - point.py;
         } else {
             clearFlag = true;
             motionBuilder.setId2(item.first);
             motionBuilder.setX2(point.x - point.px);
             motionBuilder.setY2(point.y - point.py);
             sendData(motionBuilder.getBytes(), 6);
-            qDebug()<< "id"<< item.first<<"x2-px:"<<point.x - point.px << " y2-px:"<< point.y-point.py;
+            qDebug() << "id" << item.first << "x2-px:" << point.x - point.px << " y2-px:" << point.y - point.py;
         }
     }
     return 0;

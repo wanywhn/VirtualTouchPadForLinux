@@ -11,8 +11,8 @@ public:
     PacketStatusBuilder() {
         initRes();
     }
-    void initRes() {
 
+    void initRes() {
         bytes = new unsigned char[6];
         memset(bytes, 0, 6);
         //TODO init
@@ -21,7 +21,7 @@ public:
     }
 
     void setFingerTouched(unsigned int id) {
-        qDebug()<<"id:"<<(id & 0x7);
+        qDebug() << "id:" << (id & 0x7);
         bytes[1] |= (1U << (id & 0x7)) & 0x1fU;
 
     }
