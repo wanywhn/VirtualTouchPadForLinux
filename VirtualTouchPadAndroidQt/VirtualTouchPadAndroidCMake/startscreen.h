@@ -6,7 +6,7 @@
 #include "serverconfig.h"
 #include "touchscreen.h"
 
-class StartScreen : public QWidget
+class StartScreen : public QStackedWidget
 {
     Q_OBJECT
 public:
@@ -14,7 +14,6 @@ public:
     void setupUI();
     ~StartScreen() override = default;
 
-    QStackedWidget *stackedWidget;
     QWidget *mainWidget;
     ServerConfig *setupConnWidget;
     TouchScreen *touchScreenWidget;
