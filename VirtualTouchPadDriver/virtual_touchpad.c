@@ -39,14 +39,14 @@ static struct class *vtp_class = NULL;
 static ssize_t vtp_write(struct file *filp, const char __user
 
 *buf,
-size_t count, loff_t
-*f_pos);
+                         size_t count, loff_t
+                         *f_pos);
 
 static ssize_t vtp_read(struct file *filp, char __user
 
 *buf,
-size_t count, loff_t
-*f_pos);
+                        size_t count, loff_t
+                        *f_pos);
 
 static void setup_dev(struct input_dev *target_input_dev, struct device_info *info);
 
@@ -82,7 +82,7 @@ int fingerCount = 0;
 DEFINE_SPINLOCK(countLock);
 
 static void clear_state(struct input_dev *dev) {
-    int i = 0;
+    int i;
     for (i = 0; i < VTP_MAX_FINGER; ++i) {
         input_mt_slot(dev, i);
         input_mt_report_slot_state(dev, MT_TOOL_FINGER, false);
@@ -163,11 +163,11 @@ static void process_packet_head_v4(struct vtp_dev *vtp_dev1) {
     //
     // if (fingerCount <= 1) {
     //     if (isTouchScreen) {
-    //         //first single touch after multi touch ,we should let mouse pos continue
+    //         //first single touch after multi-touch ,we should let mouse pos continue
     //         etd->mt[id].x = etd->last_pointer_pos2.x;
     //         etd->mt[id].y = etd->last_pointer_pos2.y;
     //     } else {
-    //         // normal single touch,but maybe first touch in multi touch
+    //         // normal single touch,but maybe first touch in multi-touch
 
     //         etd->last_pointer_pos2.x = etd->last_pointer_pos.x;
     //         etd->last_pointer_pos2.y = etd->last_pointer_pos.y;
@@ -277,18 +277,18 @@ static void process_packet_motion_v4(struct vtp_dev *vtp_dev1) {
     delta_x2 = (signed char) packet[4];
     delta_y2 = (signed char) packet[5];
 
-    if ((delta_x1 == 0) && (delta_y1 ==0)) {
+    if ((delta_x1 == 0) && (delta_y1 == 0)) {
         goto PROCESS_ID_2;
     }
 
     etd->mt[id].x += delta_x1 * weight;
     etd->mt[id].y += delta_y1 * weight;
-    printk("motion for id:%d, x[%d],y[%d]\r\n",id, etd->mt[id].x, etd->mt[id].y);
+    printk("motion for id:%d, x[%d],y[%d]\r\n", id, etd->mt[id].x, etd->mt[id].y);
     input_mt_slot(dev, id);
     input_report_abs(dev, ABS_MT_POSITION_X, etd->mt[id].x);
     input_report_abs(dev, ABS_MT_POSITION_Y, etd->mt[id].y);
 
-PROCESS_ID_2:
+    PROCESS_ID_2:
 
     if (sid >= 0) {
         if ((delta_x2 == 0) && (delta_y2 == 0)) {
@@ -299,9 +299,9 @@ PROCESS_ID_2:
         input_mt_slot(dev, sid);
         input_report_abs(dev, ABS_MT_POSITION_X, etd->mt[sid].x);
         input_report_abs(dev, ABS_MT_POSITION_Y, etd->mt[sid].y);
-        printk("motion for id:%d, x[%d],y[%d]\r\n",sid, etd->mt[sid].x, etd->mt[sid].y);
+        printk("motion for id:%d, x[%d],y[%d]\r\n", sid, etd->mt[sid].x, etd->mt[sid].y);
     }
-MOTION_OUT:
+    MOTION_OUT:
 
     input_sync_v4(dev);
 }
@@ -348,7 +348,8 @@ void configure_device(struct vtp_dev *vtp_dev1) {
         return;
 
     }
-    printk("x:%d,y:%d,resx:%d,resy:%d,connect:%d\r\n", info.max_x_mm, info.max_y_mm, info.res_x, info.res_y, info.connect);
+    printk("x:%d,y:%d,resx:%d,resy:%d,connect:%d\r\n", info.max_x_mm, info.max_y_mm, info.res_x, info.res_y,
+           info.connect);
 
     if (vtp_dev1->etd->tp_dev == NULL) {
         /***init touchpad device***/
@@ -434,7 +435,7 @@ static int elantech_process_byte(struct vtp_dev *vtp_dev1) {
             configure_device(vtp_dev1);
         default:
             if (!inited) {
-                printk("havn't inited\n");
+                printk("haven't inited\n");
                 return 0;
             }
             elantech_report_absolute_v4(vtp_dev1, packet_type);
@@ -483,8 +484,8 @@ static void setup_dev(struct input_dev *target_input_dev, struct device_info *in
     __set_bit(BTN_TOUCH, target_input_dev->keybit);
 
     //TODO get x_min y_min x_max y_max
-    int xmax = info->max_x_mm ;
-    int ymax = info->max_y_mm ;
+    int xmax = info->max_x_mm;
+    int ymax = info->max_y_mm;
 
 
     /* For X to recognize me as touchpad. */
@@ -495,7 +496,7 @@ static void setup_dev(struct input_dev *target_input_dev, struct device_info *in
                          PMAX, 0, 0);
     input_set_abs_params(target_input_dev, ABS_TOOL_WIDTH, WMIN,
                          WMAX, 0, 0);
-    /* Multitouch capable pad, up to 5 fingers. */
+    /* Multi-touch capable pad, up to 5 fingers. */
     if (info->isTouchPad) {
         input_mt_init_slots(target_input_dev, VTP_MAX_FINGER, INPUT_MT_POINTER);
     } else {
@@ -564,15 +565,15 @@ vtp_init(void) {
     if (IS_ERR(vtp_device)) {
         result = PTR_ERR(vtp_device);
         printk(KERN_WARNING
-        "[target] Error %d while trying to create %s%d",
-                result, VTP_DEVICE_NAME, vtp_minor);
+               "[target] Error %d while trying to create %s%d",
+               result, VTP_DEVICE_NAME, vtp_minor);
         //cdev_del(&dev->cdev);
         return result;
     }
 
     void *etd = kmalloc(sizeof(struct elantech_data), GFP_KERNEL);
     if (etd == NULL) {
-        printk("vtp_init:Could not allock mem of etd\n");
+        printk("vtp_init:Could not alloc mem of etd\n");
         goto fail;
     }
     vtp_read_data_dev->etd = etd;
@@ -602,7 +603,7 @@ static void vtp_exit(void) {
         class_destroy(vtp_class);
     }
     unregister_chrdev_region(vtp_dev_num, 1);
-    printk("Vittual Touchpad Driver unloaded.\n");
+    printk("Virtual Touchpad Driver unloaded.\n");
 }
 
 ssize_t vtp_read(struct file *filp, char *buf, size_t count, loff_t *f_pos) {

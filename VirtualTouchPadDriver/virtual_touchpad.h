@@ -3,14 +3,13 @@
 //
 
 #ifndef AVMS_VIRTUAL_MOUSEPAD_H
-
 #define AVMS_VIRTUAL_MOUSEPAD_H
 
-#define PACKET_UNKNOWN			0x01
+#define PACKET_UNKNOWN            0x01
 
-#define PACKET_V4_HEAD			0x05
-#define PACKET_V4_MOTION		0x06
-#define PACKET_V4_STATUS		0x07
+#define PACKET_V4_HEAD            0x05
+#define PACKET_V4_MOTION        0x06
+#define PACKET_V4_STATUS        0x07
 #define PACKET_CONFIG           0x08
 
 #define VTP_DEVICE_NAME "virtual_touchpad"
@@ -26,10 +25,11 @@
 /*
  * weight value for v4 hardware
  */
-#define ETP_WEIGHT_VALUE		5
+#define ETP_WEIGHT_VALUE        5
 #define VTP_MAX_FINGER 5
 
 #include <linux/cdev.h>
+
 /*
  * The base position for one finger, v4 hardware
  */
@@ -37,15 +37,14 @@ struct finger_pos {
     unsigned int x;
     unsigned int y;
 };
-struct device_info{
+
+struct device_info {
     int max_x_mm;
     int max_y_mm;
     int res_x;
     int res_y;
     bool connect;
     bool isTouchPad;
-
-
 };
 
 struct elantech_data {
@@ -56,10 +55,10 @@ struct elantech_data {
     struct finger_pos mt[VTP_MAX_FINGER];
 };
 
-struct vtp_dev{
+struct vtp_dev {
     struct cdev mcdev;
-    struct elantech_data * etd;
-    unsigned char* packet;
+    struct elantech_data *etd;
+    unsigned char *packet;
 };
 
 
