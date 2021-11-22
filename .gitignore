@@ -208,3 +208,5 @@ CMakeLists.txt.user*
 *creator.user*
 
 *_qmlcache.qrc
+
+**/.cache
