@@ -36,17 +36,11 @@ static int vtp_major = vtp_MAJOR;
 static int vtp_minor;
 static struct class *vtp_class = NULL;
 
-static ssize_t vtp_write(struct file *filp, const char __user
+static ssize_t vtp_write(struct file *filp, const char __user *buf,
+                         size_t count, loff_t *f_pos);
 
-*buf,
-                         size_t count, loff_t
-                         *f_pos);
-
-static ssize_t vtp_read(struct file *filp, char __user
-
-*buf,
-                        size_t count, loff_t
-                        *f_pos);
+static ssize_t vtp_read(struct file *filp, char __user *buf,
+                        size_t count, loff_t *f_pos);
 
 static void setup_dev(struct input_dev *target_input_dev, struct device_info *info);
 
@@ -244,14 +238,15 @@ static void process_packet_head_v4(struct vtp_dev *vtp_dev1) {
 }
 
 static void process_packet_motion_v4(struct vtp_dev *vtp_dev1) {
-    if (ommit_this) {
-        return;
-    }
     struct input_dev *dev;
     struct elantech_data *etd = vtp_dev1->etd;
     unsigned char *packet = vtp_dev1->packet;
-    int weight, delta_x1 = 0, delta_y1 = 0, delta_x2 = 0, delta_y2 = 0;
+    int weight, delta_x1, delta_y1, delta_x2, delta_y2;
     int id, sid;
+
+    if (ommit_this) {
+        return;
+    }
 
     id = ((packet[0] & 0xe0) >> 5);// - 1;
     if (id < 0)
@@ -443,7 +438,7 @@ static int elantech_process_byte(struct vtp_dev *vtp_dev1) {
     }
 
     return 0;
-};
+}
 
 static const unsigned short msg_bytes = 6 * sizeof(char);
 
@@ -565,7 +560,7 @@ vtp_init(void) {
     if (IS_ERR(vtp_device)) {
         result = PTR_ERR(vtp_device);
         printk(KERN_WARNING
-               "[target] Error %d while trying to create %s%d",
+                       "[target] Error %d while trying to create %s%d",
                result, VTP_DEVICE_NAME, vtp_minor);
         //cdev_del(&dev->cdev);
         return result;
