@@ -34,8 +34,8 @@
  * The base position for one finger, v4 hardware
  */
 struct finger_pos {
-    unsigned int x;
-    unsigned int y;
+    int x;
+    int y;
 };
 
 struct device_info {
@@ -49,7 +49,6 @@ struct device_info {
 
 struct elantech_data {
     struct input_dev *tp_dev;
-    struct input_dev *ts_dev;
     char tp_phys[32];
     //TODO this should be clear ??
     struct finger_pos mt[VTP_MAX_FINGER];
