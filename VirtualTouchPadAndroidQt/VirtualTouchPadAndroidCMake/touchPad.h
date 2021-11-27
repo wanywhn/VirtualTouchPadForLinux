@@ -5,6 +5,7 @@
 #ifndef VIRTUALTOUCHPADANDROIDCLIENT_TOUCHPAD_H
 #define VIRTUALTOUCHPADANDROIDCLIENT_TOUCHPAD_H
 
+#include <unistd.h>
 #include <vector>
 #include <math.h>
 #include <map>
@@ -78,6 +79,9 @@ public:
     void SendHeadPacketForOneFingerWhenMotion();
 
     void SendHeadPacket();
+    bool isConnected(void) {
+            return this->connected;
+    }
 
 private:
     bool checkPosSame(int id, double currentx, double currenty) {
@@ -87,11 +91,16 @@ private:
 
 public:
     bool sendData(const unsigned char *, size_t size) const;
+    bool disconn(void) {
+            this->connected = false;
+            return shutdown(sockfd, SHUT_RDWR);
+    }
 
     int mLastFingerCount = -1;
 
 private:
 
+    bool connected = false;
     std::unordered_map<int, PointF> mActivatePoints;
     int sockfd{};
 

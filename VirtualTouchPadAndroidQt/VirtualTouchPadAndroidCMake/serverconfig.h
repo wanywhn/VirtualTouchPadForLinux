@@ -2,27 +2,28 @@
 #define SERVERCONFIG_H
 
 #include <QWidget>
+#include <QKeyEvent>
 
 #define APP_ORGANIZATION_NAME "wanywhn"
 #define APP_ORGANIZATION_DOMAIN "gitee.com.wanywhn"
 #define APP_APPLICATION_NAME "VirtualTouchPadClient"
+#define SETTINGS_IP "connect/ip"
+#define SETTINGS_PORT "connect/port"
 
 class ServerConfig : public QWidget {
 Q_OBJECT
 public:
     explicit ServerConfig(QWidget *parent = nullptr);
 
-public slots:
-
-    void connectStatus(bool connected);
-
 signals:
-
-    void connectToServer(const char *serverAddr, int port);
 
     void backtoStartScreen();
 
-public slots:
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+
+
+
 };
 
 #endif // SERVERCONFIG_H

@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSettings>
+#include <qnamespace.h>
 
 
 #define SETTINGS_IP "connect/ip"
@@ -20,7 +21,7 @@ ServerConfig::ServerConfig(QWidget *parent) : QWidget(parent) {
     portLineEdit->setText(settings.value(SETTINGS_PORT, "6781").toString());
     layout->addRow("Server Port", portLineEdit);
 
-    auto connectBtn = new QPushButton("Connect", this);
+    auto connectBtn = new QPushButton("Save Configure", this);
     connect(connectBtn, &QPushButton::clicked, [this, ipLineEdit, portLineEdit]() {
         if (ipLineEdit->text().isEmpty() || portLineEdit->text().isEmpty()) {
             QMessageBox::warning(this, "Para Error", "please enter");
@@ -29,20 +30,16 @@ ServerConfig::ServerConfig(QWidget *parent) : QWidget(parent) {
         QSettings setting;
         setting.setValue(SETTINGS_IP, ipLineEdit->text().toStdString().data());
         setting.setValue(SETTINGS_PORT,portLineEdit->text().toStdString().data());
-        emit connectToServer(ipLineEdit->text().toStdString().data(), portLineEdit->text().toInt());
+        QMessageBox msgBox;
+        msgBox.setText("Save configure success");
+        msgBox.exec();
     });
     layout->addRow(connectBtn);
-
 }
 
-void ServerConfig::connectStatus(bool connected) {
-    QMessageBox msgBox;
-    if (connected) {
-        msgBox.setText("Connect to Server Success");
-        msgBox.exec();
-        emit backtoStartScreen();
-    } else {
-        msgBox.setText("Connect to Server Fail");
-        msgBox.exec();
-    }
+
+void ServerConfig::keyPressEvent(QKeyEvent *event) {
+        if(event->key() == Qt::Key_Back) {
+                emit backtoStartScreen();
+        }
 }

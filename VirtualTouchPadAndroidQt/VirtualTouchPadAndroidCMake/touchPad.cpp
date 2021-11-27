@@ -77,6 +77,7 @@ bool TouchPad::connectTo(const char *servaddr, int port) {
     if (connect(sockfd, reinterpret_cast<const sockaddr *>(&seraddr), sizeof(seraddr)) < 0) {
         return false;
     }
+    this->connected = true;
     return true;
 }
 
