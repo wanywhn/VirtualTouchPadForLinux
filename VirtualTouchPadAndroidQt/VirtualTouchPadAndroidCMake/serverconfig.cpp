@@ -22,7 +22,7 @@ ServerConfig::ServerConfig(QWidget *parent) : QWidget(parent) {
     
     auto slider = new QSlider(this);
     slider->setTracking(false);
-    auto sliderText = new QLabel(QString("Reso: %1").arg(settings.value(SETTINGS_RESOLUTION).toInt()), this);
+    auto sliderText = new QLabel(QString("Reso: %1(unit/mm)").arg(settings.value(SETTINGS_RESOLUTION).toInt()), this);
     layout->addRow(sliderText, slider);
     slider->setValue(settings.value(SETTINGS_RESOLUTION, 10).toInt());
     slider->setOrientation(Qt::Horizontal);
