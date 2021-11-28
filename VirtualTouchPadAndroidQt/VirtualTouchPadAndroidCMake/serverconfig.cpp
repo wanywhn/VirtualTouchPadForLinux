@@ -5,11 +5,10 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSettings>
-#include <qnamespace.h>
+#include <QSlider>
+#include <QLabel>
 
 
-#define SETTINGS_IP "connect/ip"
-#define SETTINGS_PORT "connect/port"
 
 ServerConfig::ServerConfig(QWidget *parent) : QWidget(parent) {
     auto layout = new QFormLayout(this);
@@ -20,6 +19,21 @@ ServerConfig::ServerConfig(QWidget *parent) : QWidget(parent) {
     auto portLineEdit = new QLineEdit();
     portLineEdit->setText(settings.value(SETTINGS_PORT, "6781").toString());
     layout->addRow("Server Port", portLineEdit);
+    
+    auto slider = new QSlider(this);
+    slider->setTracking(false);
+    auto sliderText = new QLabel(QString("Reso: %1").arg(settings.value(SETTINGS_RESOLUTION).toInt()), this);
+    layout->addRow(sliderText, slider);
+    slider->setValue(settings.value(SETTINGS_RESOLUTION, 10).toInt());
+    slider->setOrientation(Qt::Horizontal);
+    connect(slider, &QSlider::sliderMoved, [sliderText](int value){
+                    QSettings settings;
+                    sliderText->setText(QString("Reso:%1").arg(value));
+                    });
+    connect(slider, &QSlider::valueChanged, [sliderText](int value){
+                    QSettings settings;
+                    settings.setValue(SETTINGS_RESOLUTION, value);
+            });
 
     auto connectBtn = new QPushButton("Save Configure", this);
     connect(connectBtn, &QPushButton::clicked, [this, ipLineEdit, portLineEdit]() {

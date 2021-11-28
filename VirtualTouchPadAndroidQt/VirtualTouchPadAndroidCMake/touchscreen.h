@@ -1,11 +1,14 @@
 #ifndef TOUCHSCREEN_H
 #define TOUCHSCREEN_H
 
+#include "PacketBuilder/PacketConfigBuilder.h"
 #include "touchPad.h"
 #include "serverconfig.h"
 
 #include <QSettings>
 #include <QWidget>
+#include <QApplication>
+#include <QScreen>
 
 class TouchScreen : public QWidget {
 Q_OBJECT
@@ -15,8 +18,6 @@ public:
 signals:
 
     void backToStartScreen();
-
-    void serverConnectStatus(bool connected);
 
     // QObject interface
 public:
@@ -32,7 +33,15 @@ public slots:
 
         auto connected = this->tp.connectTo(settings.value(SETTINGS_IP).toString().toStdString().c_str(),
                                             settings.value(SETTINGS_PORT).toInt());
-        emit serverConnectStatus(connected);
+        assert(this->tp.isConnected() == true);
+        auto builder = new PacketConfigBuilder();
+        builder->setConnect(true);
+        builder->setResX(settings.value(SETTINGS_RESOLUTION).toInt());
+        builder->setResY(settings.value(SETTINGS_RESOLUTION).toInt());
+        builder->setMaxX(qApp->screens()[0]->size().width());
+        builder->setMaxY(qApp->screens()[0]->size().height());
+        this->tp.sendData(builder->getBytes(), 6);
+        delete builder;
     }
 
     // QWidget interface

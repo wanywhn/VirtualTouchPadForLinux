@@ -9,6 +9,7 @@
 #define APP_APPLICATION_NAME "VirtualTouchPadClient"
 #define SETTINGS_IP "connect/ip"
 #define SETTINGS_PORT "connect/port"
+#define SETTINGS_RESOLUTION "touchscreen/resolution"
 
 class ServerConfig : public QWidget {
 Q_OBJECT

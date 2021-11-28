@@ -33,7 +33,7 @@ void StartScreen::setupUI() {
     } else {
             touchScreenBtn->setEnabled(false);
     }
-    touchScreenBtn->setText(QString("Connect to [%1:%2]").arg(settings.value(SETTINGS_IP).toString()).arg(settings.value(SETTINGS_PORT).toInt()));
+    touchScreenBtn->setText(QString("Connect to [%1:%2], reso[%3]").arg(settings.value(SETTINGS_IP).toString()).arg(settings.value(SETTINGS_PORT).toInt()).arg(settings.value(SETTINGS_RESOLUTION).toInt()));
     verticalLayout->addWidget(touchScreenBtn);
 
     connect((TouchScreen *) this->touchScreenWidget, &TouchScreen::backToStartScreen, [this]() {
@@ -47,20 +47,12 @@ void StartScreen::setupUI() {
 
     connect(touchScreenBtn, &QPushButton::clicked, [this]() {
         this->touchScreenWidget->connectToServer();
-        auto builder = new PacketConfigBuilder();
-        builder->setConnect(true);
-        builder->setResX(10);
-        builder->setResY(10);
-        builder->setMaxX(qApp->screens()[0]->size().width());
-        builder->setMaxY(qApp->screens()[0]->size().height());
-        ((TouchScreen *) this->touchScreenWidget)->tp.sendData(builder->getBytes(), 6);
-        delete builder;
 
         this->setCurrentWidget(this->touchScreenWidget);
     });
     connect(this->setupConnWidget, &ServerConfig::backtoStartScreen, [this, touchScreenBtn]() {
                     QSettings settings;
-       touchScreenBtn->setText(QString("Connect to [%1:%2]").arg(settings.value(SETTINGS_IP).toString()).arg(settings.value(SETTINGS_PORT).toInt()));
+    touchScreenBtn->setText(QString("Connect to [%1:%2], reso[%3]").arg(settings.value(SETTINGS_IP).toString()).arg(settings.value(SETTINGS_PORT).toInt()).arg(settings.value(SETTINGS_RESOLUTION).toInt()));
         this->setCurrentWidget(this->mainWidget);
     });
 
