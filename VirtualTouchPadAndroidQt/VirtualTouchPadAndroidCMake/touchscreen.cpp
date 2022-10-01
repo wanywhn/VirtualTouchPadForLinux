@@ -2,6 +2,7 @@
 #include <QDebug>
 
 #include <QTouchEvent>
+#include <set>
 
 TouchScreen::TouchScreen(QWidget *parent) : QWidget(parent) {
     setAttribute(Qt::WA_AcceptTouchEvents);
@@ -35,10 +36,14 @@ bool TouchScreen::event(QEvent *event) {
             if (count == 0) {
                 break;
             }
+            std::set<int> idset;
             for (const auto &point: tevent->touchPoints()) {
                 switch (point.state()) {
                     case Qt::TouchPointMoved:
                     case Qt::TouchPointPressed: {
+                        if (idset.find(point.id()) != idset.cend()) {
+                            qDebug()<< "ont TouchUpdate contains multi same id point, this should fix";
+                        }
                         this->tp.addPoint(point.id(),
                                           {static_cast<int>(point.pos().x()), static_cast<int>(point.pos().y())});
                         break;
@@ -79,6 +84,7 @@ bool TouchScreen::event(QEvent *event) {
 //                qDebug() << item;
 //                this->tp.removePoint(item.id());
 //            }
+            // TODO it seems has bug
             this->tp.clearState();
 
             this->tp.SendStatusPacket();
