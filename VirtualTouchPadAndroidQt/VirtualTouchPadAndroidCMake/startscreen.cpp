@@ -37,8 +37,6 @@ void StartScreen::setupUI() {
     verticalLayout->addWidget(touchScreenBtn);
 
     connect((TouchScreen *) this->touchScreenWidget, &TouchScreen::backToStartScreen, [this]() {
-        // TODO disconnect from server
-        this->touchScreenWidget->tp.disconn();
         this->setCurrentWidget(this->mainWidget);
     });
     connect(setupConnBtn, &QPushButton::clicked, [this]() {
@@ -66,6 +64,7 @@ void StartScreen::setupUI() {
 
 void StartScreen::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_Back) {
+        this->touchScreenWidget->tp.disconn();
         this->setCurrentWidget(this->mainWidget);
     }
 }

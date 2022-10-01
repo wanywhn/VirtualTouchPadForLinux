@@ -93,7 +93,9 @@ public:
     bool sendData(const unsigned char *, size_t size) const;
     bool disconn(void) {
             this->connected = false;
-            return shutdown(sockfd, SHUT_RDWR);
+            shutdown(sockfd, SHUT_RDWR);
+            printf("shutdown sockfd\r\n");
+            return close(sockfd);
     }
 
     int mLastFingerCount = -1;
