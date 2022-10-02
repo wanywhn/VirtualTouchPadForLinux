@@ -361,8 +361,6 @@ static void setup_dev(struct input_dev *target_input_dev, struct device_info *in
     int ymax = info->max_y_mm;
 
     //__set_bit(INPUT_PROP_POINTER,target_input_dev->propbit);
-    __set_bit(EV_ABS, target_input_dev->evbit);
-    __set_bit(EV_KEY, target_input_dev->evbit);
     __clear_bit(EV_REL, target_input_dev->evbit);
 
     __set_bit(BTN_TOUCH, target_input_dev->keybit);
