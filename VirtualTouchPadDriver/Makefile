@@ -34,7 +34,7 @@ dkms:
 		sudo dkms build $(dkms_name)/$(dkms_version); \
 	fi
 	#mkdeb
-	sudo dkms mkdeb -m $(dkms_name) -v $(dkms_version) --source-only
+	sudo dkms mktarball -m $(dkms_name) -v $(dkms_version)  --source-only
 
 dkms_clean:
 	# if dkms bindings exist, remove them
