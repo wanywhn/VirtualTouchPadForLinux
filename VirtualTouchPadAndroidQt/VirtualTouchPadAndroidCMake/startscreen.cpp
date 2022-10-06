@@ -50,7 +50,12 @@ void StartScreen::setupUI() {
     });
     connect(this->setupConnWidget, &ServerConfig::backtoStartScreen, [this, touchScreenBtn]() {
                     QSettings settings;
-    touchScreenBtn->setText(QString("Connect to [%1:%2], reso[%3]").arg(settings.value(SETTINGS_IP).toString()).arg(settings.value(SETTINGS_PORT).toInt()).arg(settings.value(SETTINGS_RESOLUTION).toInt()));
+        if (settings.contains(SETTINGS_IP)) {
+            touchScreenBtn->setEnabled(true);
+        } else {
+            touchScreenBtn->setEnabled(false);
+        }
+        touchScreenBtn->setText(QString("Connect to [%1:%2], reso[%3]").arg(settings.value(SETTINGS_IP).toString()).arg(settings.value(SETTINGS_PORT).toInt()).arg(settings.value(SETTINGS_RESOLUTION).toInt()));
         this->setCurrentWidget(this->mainWidget);
     });
 
