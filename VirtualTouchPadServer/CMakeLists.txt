@@ -64,7 +64,7 @@ set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
 	"${INSSCRIPT}/prerm")
 
 
-INSTALL(TARGETS ${PROJET_NAME} RUNTIME DESTINATION bin)
+INSTALL(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 INSTALL(FILES virtual_touchpad_server.conf.example DESTINATION /etc
 	RENAME virtual_touchpad_server.conf)
 INSTALL(PROGRAMS Initscripts/vtp-server DESTINATION /etc/init.d)
