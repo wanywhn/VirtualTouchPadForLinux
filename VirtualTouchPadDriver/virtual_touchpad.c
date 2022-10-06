@@ -253,29 +253,29 @@ void configure_device(struct vtp_dev *vtp_dev1) {
     printk("x:%d,y:%d,resx:%d,resy:%d,connect:%d\r\n", info.max_x_mm, info.max_y_mm, info.res_x, info.res_y,
            info.connect);
 
-    if (vtp_dev1->etd->tp_dev == NULL) {
-        /***init touchpad device***/
-        struct input_dev *input_dev_tp = input_allocate_device();
-        if (input_dev_tp == NULL) {
-            printk("Bad input_alloc_device()\n");
-            return;
-        }
-        input_dev_tp->name = "Virtual Touch Pad";
-        input_dev_tp->phys = "vtp";
-        input_dev_tp->id.bustype = BUS_VIRTUAL;
-        input_dev_tp->id.vendor = 0x0000;
-        input_dev_tp->id.product = 0x0000;
-        input_dev_tp->id.version = 0x0000;
-        setup_dev(input_dev_tp, &info);
-        if (input_register_device(input_dev_tp) != 0) {
-            return;
-        }
-        vtp_dev1->etd->tp_dev = input_dev_tp;
-    } else {
-        setup_dev(vtp_dev1->etd->tp_dev, &info);
-        input_reset_device(vtp_dev1->etd->tp_dev);
+    if (vtp_dev1->etd->tp_dev != NULL) {
+        input_unregister_device(vtp_read_data_dev->etd->tp_dev);
+        vtp_dev1->etd->tp_dev = NULL;
     }
 
+    /***init touchpad device***/
+    struct input_dev *input_dev_tp = input_allocate_device();
+    if (input_dev_tp == NULL) {
+        printk("Bad input_alloc_device()\n");
+        return;
+    }
+    input_dev_tp->name = "Virtual Touch Pad";
+    input_dev_tp->phys = "vtp";
+    input_dev_tp->id.bustype = BUS_VIRTUAL;
+    input_dev_tp->id.vendor = 0x0000;
+    input_dev_tp->id.product = 0x0000;
+    input_dev_tp->id.version = 0x0000;
+    setup_dev(input_dev_tp, &info);
+    if (input_register_device(input_dev_tp) != 0) {
+        return;
+    }
+    vtp_dev1->etd->tp_dev = input_dev_tp;
+    input_reset_device(vtp_dev1->etd->tp_dev);
 }
 
 static int elantech_packet_check_v4(unsigned char *data) {
