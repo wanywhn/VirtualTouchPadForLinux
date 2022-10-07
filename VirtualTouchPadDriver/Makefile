@@ -30,11 +30,13 @@ dkms:
 		sudo dkms add  ${DIR}; \
 	fi
 	#build
-	if ! dkms status -m $(dkms_name) -v $(dkms_version)  | egrep '(built|installed)' >/dev/null ; then\
-		sudo dkms build $(dkms_name)/$(dkms_version); \
-	fi
+	#if ! dkms status -m $(dkms_name) -v $(dkms_version)  | egrep '(built|installed)' >/dev/null ; then\
+		#sudo dkms build $(dkms_name)/$(dkms_version); \
+	#fi
 	#mkdeb
-	sudo dkms mktarball -m $(dkms_name) -v $(dkms_version)  --source-only
+	#sudo dkms mktarball -m $(dkms_name) -v $(dkms_version)  --source-only
+	#sudo dkms mkdsc -m $(dkms_name) -v $(dkms_version) --source-only
+	sudo dkms mkdeb -m $(dkms_name) -v $(dkms_version) --source-only
 
 dkms_clean:
 	# if dkms bindings exist, remove them
