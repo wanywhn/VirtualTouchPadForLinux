@@ -11,6 +11,8 @@ int main(int argc, char *argv[]) {
 
 	auto *server = new InputServer();
 
+	system("modprobe virtual_touchpad");
+
 	if ( !(server->initialize(argc, argv)) ) {
 		delete server;
 		return 1;
