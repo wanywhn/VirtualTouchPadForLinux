@@ -42,8 +42,8 @@ ServerConfig::ServerConfig(QWidget *parent) : QWidget(parent) {
             return;
         }
         QSettings setting;
-        setting.setValue(SETTINGS_IP, ipLineEdit->text().toStdString().data());
-        setting.setValue(SETTINGS_PORT,portLineEdit->text().toStdString().data());
+        setting.setValue(SETTINGS_IP, ipLineEdit->text());
+        setting.setValue(SETTINGS_PORT,portLineEdit->text());
         QMessageBox msgBox;
         msgBox.setText("Save configure success");
         msgBox.exec();
