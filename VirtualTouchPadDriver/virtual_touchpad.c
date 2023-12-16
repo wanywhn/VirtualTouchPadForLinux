@@ -15,6 +15,7 @@
 
 #include "virtual_touchpad.h"
 #include <linux/err.h>
+#include <linux/version.h>
 //vtp=virtual touch pad
 #ifndef vtp_MAJOR
 #define vtp_MAJOR 60
@@ -433,7 +434,11 @@ vtp_init(void) {
     if (result < 0) {
         goto fail;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 4, 0)
     vtp_class = class_create(THIS_MODULE, VTP_DEVICE_NAME);
+#else
+    vtp_class = class_create(VTP_DEVICE_NAME);
+#endif
     if (IS_ERR(vtp_class)) {
         goto fail;
     }
