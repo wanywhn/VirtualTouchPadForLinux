@@ -9,15 +9,8 @@
 #include <QLabel>
 
 
+
 ServerConfig::ServerConfig(QWidget *parent) : QWidget(parent) {
-    connect(&zeroConf, &QZeroConf::serviceAdded, this, &ServerConfig::addService);
-    connect(&zeroConf, &QZeroConf::serviceRemoved, this, &ServerConfig::removeService);
-    connect(&zeroConf, &QZeroConf::serviceUpdated, this, &ServerConfig::updateService);
-
-    this->startPublish();
-//    connect(qApp, SIGNAL(applicationStateChanged(Qt::ApplicationState)), this, SLOT(appStateChanged(Qt::ApplicationState)));
-
-
     auto layout = new QFormLayout(this);
     auto ipLineEdit = new QLineEdit();
     QSettings settings;
@@ -62,50 +55,5 @@ ServerConfig::ServerConfig(QWidget *parent) : QWidget(parent) {
 void ServerConfig::keyPressEvent(QKeyEvent *event) {
         if(event->key() == Qt::Key_Back) {
                 emit backtoStartScreen();
-        }
-}
-
-void ServerConfig::startPublish()
-{
-        zeroConf.clearServiceTxtRecords();
-        zeroConf.addServiceTxtRecord("Qt", "the best!");
-        zeroConf.addServiceTxtRecord("ZeroConf is nice too");
-        zeroConf.startServicePublish("Android Phone", "_virtualtouchpad._tcp", "local", 6781);
-        qDebug() << "Start Publish";
-
-}
-
-// ---------- Discovery Callbacks ----------
-
-void ServerConfig::addService(QZeroConfService zcs)
-{
-        qDebug() << "Added service: " << zcs;
-
-
-}
-
-void ServerConfig::removeService(QZeroConfService zcs)
-{
-        qint32 i, row;
-        qDebug() << "Removed service: " << zcs;
-}
-
-void ServerConfig::updateService(QZeroConfService zcs)
-{
-        qDebug() << "Service updated: " << zcs;
-}
-
-
-void ServerConfig::appStateChanged(Qt::ApplicationState state)
-{
-        if (state == Qt::ApplicationSuspended) {
-                zeroConf.stopServicePublish();
-                zeroConf.stopBrowser();
-        }
-        else if (state == Qt::ApplicationActive) {
-//                if (publishEnabled && !zeroConf.publishExists())
-//                    startPublish();
-                if (!zeroConf.browserExists())
-                    zeroConf.startBrowser("_qtzeroconf_test._tcp");
         }
 }

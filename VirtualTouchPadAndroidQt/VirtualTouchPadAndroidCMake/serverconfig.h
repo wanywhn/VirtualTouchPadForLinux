@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QKeyEvent>
-#include <qzeroconf.h>
 
 #define APP_ORGANIZATION_NAME "wanywhn"
 #define APP_ORGANIZATION_DOMAIN "gitee.com.wanywhn"
@@ -23,14 +22,9 @@ signals:
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
-    QZeroConf zeroConf;
 
 
-    void addService(QZeroConfService zcs);
-    void removeService(QZeroConfService zcs);
-    void updateService(QZeroConfService zcs);
-    void appStateChanged(Qt::ApplicationState state);
-    void startPublish();
+
 };
 
 #endif // SERVERCONFIG_H
