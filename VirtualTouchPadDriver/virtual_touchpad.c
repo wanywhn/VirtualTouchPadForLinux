@@ -233,9 +233,11 @@ static void elantech_report_absolute_v4(struct vtp_dev *vtp_dev1,
 
 void configure_device(struct vtp_dev *vtp_dev1) {
 
+    struct input_dev *input_dev_tp = NULL;
+    struct device_info info;
 
     unsigned char *data = vtp_dev1->packet;
-    struct device_info info;
+
     info.max_x_mm = data[2] | ((data[5] & 0xf0U) << 4U);
     info.max_y_mm = data[4] | ((data[5] & 0xfU) << 8U);
     info.res_x = data[0];
@@ -260,7 +262,7 @@ void configure_device(struct vtp_dev *vtp_dev1) {
     }
 
     /***init touchpad device***/
-    struct input_dev *input_dev_tp = input_allocate_device();
+	input_dev_tp = input_allocate_device();
     if (input_dev_tp == NULL) {
         printk("Bad input_alloc_device()\n");
         return;
